@@ -1,7 +1,12 @@
-# Design System v0.1
+---
+name: design-system
+description: Design System da plataforma de gestão para práticas estéticas (Anora) — paleta, tipografia Geist, Tailwind v4 com tokens via @theme, ícones Phosphor, layout com sidebar compacta, cards, formulários, tabelas, estados e checklist de revisão. Use sempre que for criar ou revisar qualquer tela, componente visual ou estilo desse produto. Complementa a app-architecture-skill (que cobre dados/estado/persistência) e prevalece sobre a taste-skill em caso de conflito, exceto onde indicado.
+---
+
+# Design System v0.2
 ## Plataforma de Gestão para Práticas Estéticas
 
-**Status:** Draft / v0.1  
+**Status:** Draft / v0.2 (v0.2: fonte Geist, ícones Phosphor, implementação em Tailwind v4, modo escuro no roadmap)  
 **Objetivo:** estabelecer uma linguagem visual consistente para todas as telas do produto.
 
 ---
@@ -179,11 +184,15 @@ Nunca usar vermelho como elemento decorativo.
 Prioridade:
 
 ```text
-Inter
+Geist
 Segoe UI
 system-ui
 sans-serif
 ```
+
+- **Geist** para toda a interface. Não usar Inter (decisão alinhada com a taste-skill: Inter é o default genérico de IA).
+- **Geist Mono** para valores numéricos que precisam alinhar em coluna (valores em R$, quantidades em tabelas, KPIs). Usar `tabular-nums` quando possível.
+- Carregar a fonte self-hosted (pacote `geist` ou `@fontsource`), com `font-display: swap`. Não linkar Google Fonts via `<link>`.
 
 ## Escala
 
@@ -720,13 +729,11 @@ O cadastro deve utilizar as mesmas regras visuais do restante do produto.
 
 Utilizar uma única família de ícones.
 
-Preferência:
+Biblioteca oficial do produto: **Phosphor** (`@phosphor-icons/react`).
 
-- Lucide
-- Tabler
-- Phosphor
-
-Escolher apenas uma biblioteca para o produto.
+- Peso `regular` como padrão; `fill` apenas para indicar estado ativo quando necessário (ex. item selecionado).
+- Não misturar com Lucide, Tabler ou outra família.
+- Nunca desenhar SVG de ícone à mão; se faltar um glifo, escolher o mais próximo da própria Phosphor.
 
 Ícones devem:
 
@@ -857,7 +864,8 @@ Se houver dúvida entre adicionar ou remover um elemento:
   --danger: #DC2626;
 
   /* Typography */
-  --font-family: Inter, "Segoe UI", system-ui, sans-serif;
+  --font-family: Geist, "Segoe UI", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
 
   /* Radius */
   --radius-sm: 6px;
@@ -879,6 +887,46 @@ Se houver dúvida entre adicionar ou remover um elemento:
   --space-16: 64px;
 }
 ```
+
+## Implementação dos tokens (Tailwind v4)
+
+A estilização é feita com **Tailwind CSS v4** (plugin `@tailwindcss/vite`). Os tokens acima são declarados **uma única vez** no CSS de entrada, via `@theme`, e passam a ser as únicas opções disponíveis nas classes:
+
+```css
+@import "tailwindcss";
+
+@theme {
+  --font-sans: Geist, "Segoe UI", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, monospace;
+
+  --color-primary-50: #F0F6FC;
+  /* ... toda a escala primary, gray, success, warning, danger das seções 3 e 4 */
+
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+```
+
+Regras:
+
+- Usar as classes geradas pelos tokens (`bg-primary-600`, `text-gray-900`, `rounded-md`, `p-4`). A escala padrão de espaçamento do Tailwind (múltiplos de 4px) já equivale à seção 6.
+- **Proibido valor arbitrário** de cor, espaçamento ou raio (`bg-[#3a7bd5]`, `p-[13px]`, `rounded-[10px]`). Se um valor não existe no `@theme`, ou ele não deveria ser usado ou precisa ser adicionado aqui na skill primeiro.
+- Remover do `@theme` as paletas padrão do Tailwind que não fazem parte do produto, para que não possam ser usadas por engano.
+- Padrões repetidos (botão, input, badge, card) viram componentes React reutilizáveis, não listas de classes copiadas entre telas.
+
+---
+
+# 29.1 Roadmap visual
+
+Itens decididos, mas fora do escopo atual:
+
+- **Modo escuro.** Não implementar agora. Para não bloquear o futuro: toda cor sai dos tokens (nunca hex solto nos componentes), de forma que o modo escuro seja apenas um segundo conjunto de valores para os mesmos tokens.
 
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: app-architecture-skill
-description: Padrão de arquitetura para sistemas de gestão CRUD (cadastros + registros ao longo do tempo + relatórios sobre eles) em React + Vite + TypeScript + Zustand, com persistência local-first e nuvem opcional. Use sempre que for estruturar um app de gestão do zero, decidir onde colocar lógica de negócio, desenhar o schema de dados/estado, escolher como persistir dados (arquivo local vs. backend na nuvem), ou definir convenções de CRUD por entidade — mesmo que o usuário não use a palavra "arquitetura" explicitamente, só descreva um novo sistema com cadastros e telas de listagem. É puramente sobre estrutura de dados, estado, persistência e lógica de aplicação — não cobre nada de visual/design de interface (cores, tipografia, layout, componentes visuais); para isso existe uma skill de design separada.
+description: Padrão de arquitetura para sistemas de gestão CRUD (cadastros + registros ao longo do tempo + relatórios sobre eles) em React + Vite + TypeScript + Zustand, publicados na Vercel, com persistência por blob de estado único em arquivo local ou Supabase (inclusive começando direto pela nuvem). Use sempre que for estruturar um app de gestão do zero, decidir onde colocar lógica de negócio, desenhar o schema de dados/estado, escolher como persistir dados (arquivo local vs. backend na nuvem), ou definir convenções de CRUD por entidade — mesmo que o usuário não use a palavra "arquitetura" explicitamente, só descreva um novo sistema com cadastros e telas de listagem. É puramente sobre estrutura de dados, estado, persistência e lógica de aplicação — não cobre nada de visual/design de interface (cores, tipografia, layout, componentes visuais); para isso existe uma skill de design separada.
 ---
 
 # Arquitetura de app de gestão (local-first + nuvem opcional)
@@ -18,6 +18,8 @@ Use este padrão quando: os dados cabem confortavelmente na memória do navegado
 - **React + Vite + TypeScript.** Sem framework com SSR — não há necessidade de renderização em servidor/rotas de servidor para um app que é essencialmente uma SPA autenticada.
 - **Zustand** para o estado global. Prefira Zustand a Context/Redux aqui: a API de store única com `set()`/`get()` mapeia diretamente no padrão "um blob de estado" descrito abaixo, sem boilerplate de reducers/actions separados.
 - **Nenhuma lib de roteamento.** Navegação entre telas é um campo `screenId` no store (a tela atual muda esse campo, cada tela lê ele para saber se deve renderizar), não um router. Um sistema de gestão com um conjunto fixo de telas — não URLs profundamente linkáveis/compartilháveis — não precisa dessa complexidade.
+- **Vite, não Next.js — mesmo publicando na Vercel.** A Vercel detecta Vite sem configuração e serve o build como site estático. SSR, rotas por URL e Server Components não trazem ganho para uma SPA autenticada (não há SEO a indexar, a navegação é por `screenId`, e o backend na nuvem é acessado direto do navegador com segurança garantida por regras de acesso no banco). Se surgir necessidade real de código em servidor (webhook de pagamento, integração com API de terceiros, uso de chave secreta), usar **funções serverless numa pasta `/api`** do próprio projeto Vite — a Vercel as executa sem migrar de framework.
+- **Estilização e visual** (Tailwind, fonte, ícones, tokens) são definidos pela skill de design, não aqui.
 
 ## Modelagem de dados: um único blob de estado
 
@@ -66,6 +68,18 @@ Duas formas de guardar o estado, pensadas para coexistir (uma não substitui a o
 O encaixe entre os dois: o store ganha um campo indicando qual backend está ativo, e a função que qualquer tela chama para salvar — uma única `persist()` — vira uma fachada pequena que olha esse campo e delega para a implementação local ou a de nuvem. Todas as telas continuam chamando só `persist()`, sem saber qual backend está ativo. Isso é o que faz adicionar um backend novo (ou trocar de fornecedor no futuro) custar uma tarde, não uma reescrita.
 
 Login/conta na nuvem deve ser **opcional e gated por configuração de ambiente** — se as credenciais não estiverem configuradas nesse ambiente, o app cai graciosamente para só oferecer o modo local, sem quebrar nem mostrar um formulário de login inútil.
+
+### Começar direto pela nuvem (Supabase)
+
+Quando o produto já nasce precisando de acesso em mais de um dispositivo ou por mais de uma pessoa (ex. uma clínica com recepção e profissional), comece **direto com a nuvem** — o modo local passa a ser opcional/futuro, não o ponto de partida. A fachada `persist()` continua existindo desde o dia 1 (com uma implementação só), para que adicionar o modo local depois não mexa em nenhuma tela.
+
+Padrão com Supabase:
+
+- **Tabela única do estado**: uma linha por conta, ex. `app_state (user_id uuid primary key references auth.users, data jsonb not null, updated_at timestamptz not null default now())`. Mesmo princípio de não normalizar desde o início.
+- **RLS obrigatório** nessa tabela, com políticas de select/insert/update restritas a `auth.uid() = user_id`. É o RLS que torna seguro acessar o banco direto do navegador — sem ele, qualquer usuário logado leria o estado de todos.
+- **Chaves no frontend**: só a URL do projeto e a chave publicável/anon, via `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` (em `.env.local`, que não vai para o git, e nas Environment Variables da Vercel). **Nunca** colocar a service role key em variável `VITE_*` — tudo com esse prefixo vai para o bundle público; se precisar dela, só dentro de uma função em `/api`.
+- **Arquivos (fotos, documentos)** não entram no blob: vão para o Supabase Storage, com o blob guardando só o caminho/URL. O blob precisa continuar pequeno o suficiente para ser salvo inteiro a cada alteração.
+- **Escrita**: `persist()` faz upsert do blob inteiro com debounce (agrupa alterações rápidas em uma escrita), e o campo de sessão "salvando..." indica escrita em andamento. Compare `meta.lastModified` ao carregar/salvar para detectar que outra sessão salvou algo mais novo, em vez de sobrescrever silenciosamente.
 
 Ambos os caminhos de carregamento (abrir arquivo local, entrar numa conta pela primeira vez) usam o mesmo `defaultState()` + seeds + `normalizeState()` descritos acima — nunca duplicar a lógica de "o que é um estado inicial válido" em dois lugares.
 
