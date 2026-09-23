@@ -6,7 +6,7 @@ description: Design System da plataforma de gestão para práticas estéticas (A
 # Design System v0.4
 ## Plataforma de Gestão para Práticas Estéticas
 
-**Status:** Draft / v0.4 (v0.4: fundo `gray-100`, perfil fora do menu lateral, ajuda contextual, avisos e módulos futuros. v0.2: fonte Geist, ícones Phosphor, implementação em Tailwind v4, modo escuro no roadmap. v0.3: sidebar flutuante e itens do menu, logo, tags, cadastro sem abas, visibilidade por papel)  
+**Status:** Draft / v0.4.1 (v0.4.1: fundo da página no token `fundo` #E9EEF4. v0.4: fundo `gray-100`, perfil fora do menu lateral, ajuda contextual, avisos e módulos futuros. v0.2: fonte Geist, ícones Phosphor, implementação em Tailwind v4, modo escuro no roadmap. v0.3: sidebar flutuante e itens do menu, logo, tags, cadastro sem abas, visibilidade por papel)  
 **Objetivo:** estabelecer uma linguagem visual consistente para todas as telas do produto.
 
 ---
@@ -111,7 +111,7 @@ A cor primária deve ser usada com moderação.
 
 ### Uso recomendado
 
-- Background principal da página: `gray-100` (levemente mais escuro que `gray-50`, para os cards brancos se destacarem)
+- Background principal da página: token `fundo` = `#E9EEF4` (entre `gray-100` e `gray-200`). Não usar `gray-200` no fundo: é a mesma cor das bordas e os contornos dos cards sumiriam
 - Superfícies internas neutras (cabeçalho de tabela, hover de linha, área da foto no formulário): `gray-50`
 - Cards: `white`
 - Bordas: `gray-200`
@@ -349,7 +349,7 @@ A sidebar é compacta, predominantemente baseada em ícones, e **flutuante**: um
 
 Características:
 
-- Fundo branco, borda `gray-200` e `shadow-sm` (a borda sozinha já deve bastar para separar do fundo `gray-100`)
+- Fundo branco, borda `gray-200` e `shadow-sm` (a borda sozinha já deve bastar para separar do fundo `fundo`)
 - **Flutuante:** afastada 12–16px do topo, da base e da esquerda da viewport; altura total disponível; `radius-xl` (16px)
 - Largura aproximada: 72–88px quando recolhida
 - Ícones centralizados
@@ -406,7 +406,7 @@ Prioridade:
 3. Notificações (somente quando houver notificações reais no produto)
 4. Perfil do usuário: avatar + nome + papel, com menu "Meu perfil" e "Sair"
 
-A topbar fica fixa no topo com o mesmo fundo da página (`gray-100` com leve transparência e blur), sem borda.
+A topbar fica fixa no topo com o mesmo fundo da página (token `fundo` com leve transparência e blur), sem borda.
 
 Evitar colocar métricas, banners ou informações decorativas.
 
@@ -919,7 +919,7 @@ Se houver dúvida entre adicionar ou remover um elemento:
   --primary-hover: #3476B4;
   --primary-light: #F0F6FC;
 
-  --background: #F1F5F9; /* gray-100 */
+  --background: #E9EEF4; /* token fundo */
   --surface: #FFFFFF;
 
   --text-primary: #0F172A;
@@ -968,6 +968,7 @@ A estilização é feita com **Tailwind CSS v4** (plugin `@tailwindcss/vite`). O
   --font-sans: Geist, "Segoe UI", system-ui, sans-serif;
   --font-mono: "Geist Mono", ui-monospace, monospace;
 
+  --color-fundo: #E9EEF4; /* fundo da página */
   --color-primary-50: #F0F6FC;
   /* ... toda a escala primary, gray, success, warning, danger das seções 3 e 4 */
 
