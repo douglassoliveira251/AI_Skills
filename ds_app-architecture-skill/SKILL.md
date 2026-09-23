@@ -1,6 +1,6 @@
 ---
-name: app-architecture-skill
-description: Padrão de arquitetura para sistemas de gestão CRUD (cadastros + registros ao longo do tempo + relatórios sobre eles) em React + Vite + TypeScript + Zustand, publicados na Vercel, com persistência por blob de estado único em arquivo local ou Supabase (inclusive começando direto pela nuvem). Use sempre que for estruturar um app de gestão do zero, decidir onde colocar lógica de negócio, desenhar o schema de dados/estado, escolher como persistir dados (arquivo local vs. backend na nuvem), ou definir convenções de CRUD por entidade — mesmo que o usuário não use a palavra "arquitetura" explicitamente, só descreva um novo sistema com cadastros e telas de listagem. É puramente sobre estrutura de dados, estado, persistência e lógica de aplicação — não cobre nada de visual/design de interface (cores, tipografia, layout, componentes visuais); para isso existe uma skill de design separada.
+name: ds_app-architecture-skill
+description: Padrão de arquitetura para sistemas de gestão CRUD (cadastros + registros ao longo do tempo + relatórios sobre eles) em React + Vite + TypeScript + Zustand, publicados na Vercel, com persistência por blob de estado único (arquivo local ou Supabase) ou, quando há papéis/permissões por usuário, com Supabase relacional multi-tenant + RLS por papel. Use sempre que for estruturar um app de gestão do zero, decidir onde colocar lógica de negócio, desenhar o schema de dados/estado, escolher como persistir dados (arquivo local vs. backend na nuvem), ou definir convenções de CRUD por entidade — mesmo que o usuário não use a palavra "arquitetura" explicitamente, só descreva um novo sistema com cadastros e telas de listagem. É puramente sobre estrutura de dados, estado, persistência e lógica de aplicação — não cobre nada de visual/design de interface (cores, tipografia, layout, componentes visuais); para isso existe uma skill de design separada.
 ---
 
 # Arquitetura de app de gestão (local-first + nuvem opcional)
@@ -12,6 +12,8 @@ A ideia central, que justifica quase toda decisão abaixo: **o app inteiro opera
 ## Quando aplicar isto
 
 Use este padrão quando: os dados cabem confortavelmente na memória do navegador (milhares a dezenas de milhares de registros, não milhões), o app é usado por poucos usuários por conta (não é algo com escrita concorrente pesada entre muitas pessoas ao mesmo tempo), e o valor de entregar rápido supera o valor de uma arquitetura de banco relacional normalizada desde o dia 1. Se o sistema crescer para precisar de relatórios cross-conta pesados, colaboração em tempo real entre várias pessoas na mesma conta, ou volumes muito grandes de dados, normalizar em tabelas relacionais vira uma migração futura — não um bloqueio para começar.
+
+**Exceção obrigatória — permissões por papel:** se pessoas diferentes da mesma conta precisam ver **partes diferentes** dos dados (ex. recepção não vê anamnese, atendente não vê telefone do cliente), o blob único **não serve**, nem como ponto de partida. O banco só consegue proteger o blob inteiro, e esconder dados só na interface não é segurança (qualquer um lê o JSON completo pelo navegador). Nesse caso, use a variante **"Multiusuário com permissões (relacional + RLS)"** mais abaixo, que substitui as seções de blob único e de persistência; todo o resto desta skill continua valendo.
 
 ## Stack
 
@@ -83,6 +85,65 @@ Padrão com Supabase:
 
 Ambos os caminhos de carregamento (abrir arquivo local, entrar numa conta pela primeira vez) usam o mesmo `defaultState()` + seeds + `normalizeState()` descritos acima — nunca duplicar a lógica de "o que é um estado inicial válido" em dois lugares.
 
+## Variante: multiusuário com permissões (relacional + RLS)
+
+Use quando houver papéis com visibilidade diferente dentro da mesma conta (ver "Quando aplicar isto"). Substitui o blob único, a fachada local/nuvem e a tabela `app_state`. Stack, Zustand, `screenId`, funções puras, convenção CRUD, hooks de Promise, validação e versionamento continuam iguais.
+
+### Multi-tenant desde o dia 1
+
+- Tabela **`organizacoes`** (o estúdio/clínica/empresa) e tabela **`membros`** (`organizacao_id`, `user_id`, `papel`, `ativo`). Um usuário pode, no futuro, pertencer a mais de uma organização.
+- **Toda** tabela de negócio tem `organizacao_id not null`. Mesmo com um único cliente no início, isso custa quase nada e é o que permite vender o sistema para outras organizações sem migração.
+- `papel` é um enum no banco (ex. `dona | recepcao | atendente`), não texto livre.
+
+### Uma tabela por entidade, e dado sensível em tabela separada
+
+- Cada entidade vira uma tabela (`clientes`, `agendamentos`, `pagamentos`, `anamneses`, `fotos`...), com `id uuid`, `organizacao_id`, `created_at`, `updated_at`, `created_by`.
+- **RLS é por linha, não por coluna.** Se um papel pode ver a linha mas não alguns campos dela, esses campos vão para uma **tabela 1:1 separada** com política própria. Ex.: `clientes` (nome, nascimento, foto, tags) + `clientes_contato` (CPF, telefone, e-mail, endereço). Não resolver isso com `select` de colunas no frontend nem com views sem `security_invoker`.
+- Arquivos (fotos, documentos) no Supabase Storage em **bucket privado**, com o caminho prefixado pela organização (`{organizacao_id}/{cliente_id}/...`), políticas de Storage espelhando as da tabela correspondente e acesso por **URL assinada** temporária. Nunca bucket público para dado de cliente.
+
+### RLS por papel
+
+- Funções auxiliares `security definer` no banco, ex. `papel_na_org(org uuid) returns papel` e `eh_membro(org uuid) returns bool`, usadas dentro das políticas (evita subconsultas repetidas e recursão de RLS em `membros`).
+- Toda política exige `eh_membro(organizacao_id)` e depois restringe por papel. Escrever as políticas separadas por operação (`select`, `insert`, `update`, `delete`) — não usar `for all` por conveniência.
+- Restrição por "próprios registros" (ex. atendente só vê seus atendimentos) usa uma coluna explícita (`profissional_id = auth.uid()`), e o acesso às entidades relacionadas (cliente, anamnese, fotos) é derivado dela com `exists (...)` na política.
+- **A interface esconde por conveniência; o banco bloqueia por segurança.** O frontend lê o papel do usuário para decidir quais menus/telas mostrar, mas nenhuma regra de acesso depende só disso.
+- Testar cada política logando como cada papel antes de considerar a tela pronta.
+
+Exemplo de matriz (Anora, estúdio de estética):
+
+| Dado | Dona | Recepção | Atendente |
+|---|---|---|---|
+| `clientes` (dados básicos) | tudo | ver, criar, editar | só clientes que atende |
+| `clientes_contato` (CPF, telefone, e-mail, endereço) | tudo | ver, criar, editar | **não vê** |
+| `anamneses`, `fotos` | tudo | **não vê** | só dos clientes que atende |
+| `agendamentos` | tudo | tudo do dia a dia | só os próprios |
+| `pagamentos` | tudo | ver e registrar | **não vê** |
+| financeiro, relatórios, configurações, membros | tudo | não | não |
+
+### Estado no frontend
+
+- O store Zustand deixa de ser a fonte de verdade: vira **cache do que a tela carregou**, separado por entidade (`clientes: Cliente[]`, `clienteAtual`...), mais os campos de sessão de sempre (tela, filtros, loading, papel do usuário logado).
+- Uma camada **`src/data/<entidade>.ts`** é a única que fala com o Supabase: funções `listarClientes(filtros)`, `buscarCliente(id)`, `salvarCliente(obj)`, `arquivarCliente(id)`. Telas nunca chamam `supabase.from(...)` direto. Essa camada substitui a fachada `persist()` no papel de "ponto único de persistência".
+- **`normalize<Entidade>(row)`** converte a linha do banco (snake_case, nulls, datas em string) no tipo TypeScript do app (camelCase, defaults). É o equivalente do `normalizeState()`: único lugar que conhece o formato do banco.
+- **Schema versionado por migrations SQL** em `supabase/migrations/`, nunca alteração manual pelo painel. Tipos TypeScript gerados a partir do banco (`supabase gen types`) e mantidos atualizados.
+- Listagens paginam e filtram no banco (não carregar a tabela inteira para filtrar no navegador), mas os **cálculos de negócio** (idade, total gasto, frequência média) continuam em funções puras que recebem os dados já carregados. Se um agregado ficar pesado demais para calcular no cliente, ele vira uma view/função SQL — e a função pura correspondente deixa de existir, para não haver duas versões do cálculo.
+- Conflito de edição simultânea: `update ... where id = ? and updated_at = ?` (lock otimista); se nenhuma linha for afetada, avisar que outra pessoa alterou o registro e recarregar.
+
+### Segurança e LGPD
+
+Os detalhes de RLS, storage, consentimentos, auditoria, autenticação e publicação estão na skill **ds_seguranca-lgpd**. Esta seção cobre só a estrutura; ao criar ou alterar tabelas, políticas ou upload de arquivos, aplicar também o checklist daquela skill.
+
+### Fluxos de conta
+
+- **Onboarding:** usuário cria a conta (nome e telefone vão em `options.data` do `signUp`; um trigger em `auth.users` cria o perfil) → sem organização, cai na tela de criar a organização → RPC `criar_organizacao` cria a organização e o torna administrador na mesma transação.
+- **Convite de equipe por link:** o administrador cria um convite (e-mail + papel + token com validade) e copia o link `/?convite=<token>` para enviar por WhatsApp/e-mail. Não depende de SMTP, o que permite começar sem domínio próprio. O app guarda o token (sessionStorage), a pessoa cria a conta com o mesmo e-mail e, após o login, a RPC `aceitar_convite` valida e cria o vínculo.
+- **Contexto da sessão:** após o login, carregar perfil + organização + papel + dados auxiliares pequenos (equipe, tags) no store; o resto é carregado por tela.
+
+### Testes e dados de exemplo
+
+- Usuários de teste (um por papel) podem ser criados por SQL em `auth.users` + `auth.identities`, com senha via `extensions.crypt(..., extensions.gen_salt('bf'))` e `email_confirmed_at` preenchido, evitando depender de e-mail de confirmação. Dados de exemplo ficam numa organização de demonstração separada.
+- Se o banco de teste for o mesmo de produção, listar essas contas no CLAUDE.md do projeto e removê-las antes do uso real.
+
 ## Convenção de ações CRUD por entidade
 
 Cada entidade no store ganha um conjunto pequeno e uniforme de ações, não uma ação por campo:
@@ -103,8 +164,17 @@ Erros de campo obrigatório devem ser modelados como um objeto de estado local d
 
 Uma constante de versão da aplicação (esquema tipo MAJOR.BUILD), num arquivo dedicado, mostrada em algum "Sobre o app", espelhada no `package.json`. Incrementar o BUILD uma vez por rodada de mudanças entregues (não por cada linha alterada dentro da rodada) — mantém o número significativo sem inflar.
 
+## Ambiente e publicação
+
+- **Windows / PowerShell:** a política de execução costuma bloquear `npx.ps1`/`npm.ps1`. Usar `npx.cmd` e `npm.cmd` (não alterar a política de segurança do sistema). Se o npm reclamar de arquivo inexistente no `_cacache`, o cache está corrompido: `npm.cmd cache clean --force`.
+- **Vercel:** projeto ligado ao repositório GitHub, com deploy automático no push da branch principal. Variáveis `VITE_*` cadastradas para Production e Preview (`vercel env add NOME ambiente` recebendo o valor por stdin). Depois de mudar variáveis é preciso um novo deploy, porque elas entram no build. Conferir o site publicado após cada mudança de variável.
+- `vercel link` escreve no `.env.local` (acrescenta `VERCEL_OIDC_TOKEN`) e cria `.vercel/`: manter ambos fora do git.
+
 ## Erros para não repetir
 
 - Uma tela que recalcula "na mão" algo que já existe como função pura em outro lugar (em vez de importar e chamar) é onde bugs de divergência acontecem — quando o cálculo original é corrigido depois, a cópia reimplementada continua com o bug antigo.
 - Um formulário de criação que computa um valor default mas nunca de fato o aplica ao objeto salvo é um bug clássico de copiar-e-colar de uma versão anterior do formulário — revisar se toda variável computada é realmente usada.
+- Ações que só podem acontecer uma vez (aceitar convite, registrar algo no primeiro acesso) disparadas dentro de `useEffect`: em desenvolvimento o StrictMode executa o efeito duas vezes, e a segunda chamada falha ("convite já utilizado"). Guardar o valor num `useRef` e zerá-lo antes do `await`.
+- Chamadas logo após o login falhando com "JWT issued at future" (diferença de relógio entre serviços do Supabase, comum em projeto recém-criado): repetir com espera curta só nesse erro, em vez de mostrar tela de erro.
+- `createClient('')` com variável de ambiente vazia derruba o app inteiro com tela em branco: tratar valor vazio como ausente.
 - Uma ação de "editar todos os itens de um grupo relacionado de uma vez" que copia campos demais do item editado para os outros — incluindo campos que deveriam ser únicos por item (um índice de posição, uma data específica daquele item) — corrompe os outros itens do grupo. Ao editar em lote, ser explícito sobre exatamente quais campos são compartilhados vs. únicos por item.

@@ -1,12 +1,12 @@
 ---
-name: design-system
-description: Design System da plataforma de gestão para práticas estéticas (Anora) — paleta, tipografia Geist, Tailwind v4 com tokens via @theme, ícones Phosphor, layout com sidebar compacta, cards, formulários, tabelas, estados e checklist de revisão. Use sempre que for criar ou revisar qualquer tela, componente visual ou estilo desse produto. Complementa a app-architecture-skill (que cobre dados/estado/persistência) e prevalece sobre a taste-skill em caso de conflito, exceto onde indicado.
+name: ds_design-system
+description: Design System da plataforma de gestão para práticas estéticas (Anora) — paleta, tipografia Geist, Tailwind v4 com tokens via @theme, ícones Phosphor, layout com sidebar compacta, cards, formulários, tabelas, estados e checklist de revisão. Use sempre que for criar ou revisar qualquer tela, componente visual ou estilo desse produto. Complementa a ds_app-architecture-skill (que cobre dados/estado/persistência) e prevalece sobre a taste-skill em caso de conflito, exceto onde indicado.
 ---
 
-# Design System v0.2
+# Design System v0.4
 ## Plataforma de Gestão para Práticas Estéticas
 
-**Status:** Draft / v0.2 (v0.2: fonte Geist, ícones Phosphor, implementação em Tailwind v4, modo escuro no roadmap)  
+**Status:** Draft / v0.4 (v0.4: fundo `gray-100`, perfil fora do menu lateral, ajuda contextual, avisos e módulos futuros. v0.2: fonte Geist, ícones Phosphor, implementação em Tailwind v4, modo escuro no roadmap. v0.3: sidebar flutuante e itens do menu, logo, tags, cadastro sem abas, visibilidade por papel)  
 **Objetivo:** estabelecer uma linguagem visual consistente para todas as telas do produto.
 
 ---
@@ -111,7 +111,8 @@ A cor primária deve ser usada com moderação.
 
 ### Uso recomendado
 
-- Background principal: `gray-50`
+- Background principal da página: `gray-100` (levemente mais escuro que `gray-50`, para os cards brancos se destacarem)
+- Superfícies internas neutras (cabeçalho de tabela, hover de linha, área da foto no formulário): `gray-50`
 - Cards: `white`
 - Bordas: `gray-200`
 - Texto secundário: `gray-500/600`
@@ -344,28 +345,53 @@ Estrutura:
 
 ## Sidebar
 
-A sidebar é compacta e predominantemente baseada em ícones.
+A sidebar é compacta, predominantemente baseada em ícones, e **flutuante**: um painel com cantos arredondados, destacado das bordas da tela, não uma coluna colada à lateral.
 
 Características:
 
-- Fundo branco
+- Fundo branco, borda `gray-200` e `shadow-sm` (a borda sozinha já deve bastar para separar do fundo `gray-100`)
+- **Flutuante:** afastada 12–16px do topo, da base e da esquerda da viewport; altura total disponível; `radius-xl` (16px)
 - Largura aproximada: 72–88px quando recolhida
-- Borda direita sutil
 - Ícones centralizados
-- Item ativo com background `primary-50/100`
+- Item ativo com background `primary-50/100`, raio `radius-md`
 - Ícone ativo em `primary-600`
-- Tooltip ao passar o mouse
-- Botão de expandir/recolher
-- Separação entre navegação principal e ações secundárias
-- Avatar do usuário na parte inferior
+- Tooltip ao passar o mouse (somente no modo recolhido)
+- Botão de expandir/recolher (chevron discreto na borda direita do painel)
+- Separação entre navegação principal e ações secundárias (notificações, ajuda)
+- Na parte inferior: somente o atalho de **Ajuda**. O perfil do usuário **não** fica no menu lateral (fica na topbar)
+- Logo no topo: **símbolo "A" da Anora** no modo recolhido
+- O estado expandido/recolhido é preferência do usuário (lembrar entre sessões)
+
+Itens da navegação principal, nesta ordem (ícones Phosphor):
+
+```text
+Início          House
+Agenda          CalendarBlank
+Clientes        User
+Procedimentos   FlowerLotus
+Financeiro      Wallet
+Estoque         Package
+Relatórios      ChartBar
+Configurações   GearSix
+```
+
+Itens exibidos dependem do papel do usuário (ex. recepção não vê Financeiro, Relatórios nem Configurações). Um módulo ainda não implementado aparece desabilitado com tooltip "Em breve", não some da lista.
 
 ### Sidebar expandida
 
 Quando expandida:
 
-- Exibir ícone + texto
+- Exibir ícone + texto (~240px de largura)
+- Logo horizontal: símbolo "A" + "ANORA" ao lado
 - Manter mesma hierarquia visual
 - Não alterar a identidade dos itens
+- A expansão empurra o conteúdo (não sobrepõe) no desktop; no tablet/mobile pode sobrepor com overlay
+
+### Logo
+
+- Referência em `/design/referencias/logo-anora.png`. Cor oficial da marca ≈ `primary-900` (`#213F5F`); o logo usa o token, não um hex próprio.
+- Versões: símbolo (sidebar recolhida, favicon), horizontal (sidebar expandida), vertical (tela de login).
+- Preferir SVG. Enquanto não houver vetor oficial, usar o PNG; nunca redesenhar o logo à mão em SVG.
 
 ---
 
@@ -376,10 +402,20 @@ A topbar deve conter somente elementos funcionais.
 Prioridade:
 
 1. Busca
-2. Notificações
-3. Perfil do usuário
+2. Ajuda (ícone `Question`, abre o painel de ajuda da tela atual)
+3. Notificações (somente quando houver notificações reais no produto)
+4. Perfil do usuário: avatar + nome + papel, com menu "Meu perfil" e "Sair"
+
+A topbar fica fixa no topo com o mesmo fundo da página (`gray-100` com leve transparência e blur), sem borda.
 
 Evitar colocar métricas, banners ou informações decorativas.
+
+## Ajuda contextual
+
+- Toda tela registra seu conteúdo de ajuda (perguntas e respostas curtas) num arquivo central; o painel mostra o conteúdo da tela atual.
+- Painel lateral à direita, flutuante (mesmo raio e borda da sidebar), perguntas em blocos expansíveis.
+- Rodapé do painel: "Falar com o suporte" (e-mail) e a versão do app.
+- Tela nova sem ajuda registrada não está pronta.
 
 A busca global deve permitir localizar clientes e outros elementos relevantes do sistema.
 
@@ -580,12 +616,18 @@ Estado
 
 Informações adicionais
 
-Aniversário
 Preferência de profissional
 Observações
 ```
 
 Não colocar campos sem relação no mesmo grupo.
+
+Regras:
+
+- Não pedir dado que pode ser derivado de outro (ex. aniversário sai da data de nascimento; idade é calculada).
+- CEP preenche endereço, bairro, cidade e estado automaticamente; os campos continuam editáveis.
+- CPF, telefone e CEP com máscara e validação.
+- Label acima do campo, erro abaixo do campo, obrigatórios marcados com `*`. Nunca placeholder no lugar de label.
 
 ---
 
@@ -607,8 +649,12 @@ Exemplo:
 ```text
 Cliente          Última visita     Próximo agendamento    Total gasto    Status
 Maria Silva      15/09/2026        28/09/2026             R$ 4.850       Ativa
-João Santos      10/09/2026        —                      R$ 1.200       Ativo
+João Santos      10/09/2026        Sem agendamento        R$ 1.200       Ativo
 ```
+
+- Célula sem valor mostra o texto do vazio em `gray-500` ("Sem agendamento"), nunca um travessão (`—`).
+- Valores monetários alinhados à direita, em Geist Mono / `tabular-nums`.
+- Contato (WhatsApp, ligar, e-mail) como ícones clicáveis com tooltip e `aria-label`.
 
 ---
 
@@ -627,6 +673,20 @@ Exemplo:
 ```
 
 Não utilizar cores saturadas.
+
+- Status sempre com texto (não só cor): fundo `-50/-100` + texto `-700` da cor semântica; inativo em `gray-100` / `gray-600`.
+- Concordância de gênero do status ("Ativa"/"Ativo") segue o campo Sexo do cliente; sem essa informação, usar a forma "Ativo".
+
+## Tags
+
+Tags do cliente (ex. "Harmonização Facial", "Recorrente") usam um conjunto fixo de tons derivado dos tokens, nunca cores livres:
+
+- `primary` (padrão), `success`, `warning` e `gray`, sempre na combinação fundo `-50` + texto `-700`.
+- A tag recebe um desses tons ao ser criada; não criar tons fora dessa lista (nada de bege, rosa ou roxo).
+
+## Marcadores de categoria
+
+Pontos coloridos antes de itens (ex. lista de procedimentos) só quando representam uma categoria real com legenda/significado, usando os mesmos tons das tags. Sem categoria, sem ponto.
 
 ---
 
@@ -687,6 +747,10 @@ Anamnese
 
 Não adicionar gráficos ou widgets somente para preencher espaço.
 
+Referência visual: `/design/referencias/cliente-perfil-visao-geral.webp` (a lista está em `clientes-lista.webp`).
+
+Abas, blocos e ações de contato respeitam o papel do usuário: uma aba ou bloco que o papel não pode ver **não aparece** (não mostrar desabilitado nem "sem permissão"). Ex.: atendente não vê WhatsApp/Ligar/E-mail nem CPF; recepção não vê Anamnese nem Fotos.
+
 ---
 
 # 22. Página de cadastro
@@ -696,15 +760,7 @@ A tela de cadastro deve priorizar preenchimento rápido.
 Estrutura:
 
 ```text
-Novo cliente
-
-Dados pessoais
-Anamnese
-Procedimentos
-Financeiro
-Fotos
-Documentos
-Histórico
+Novo cliente                    Cancelar   Salvar cliente
 
 ────────────────────────
 
@@ -723,6 +779,10 @@ Cancelar              Salvar cliente
 
 O cadastro deve utilizar as mesmas regras visuais do restante do produto.
 
+- O cadastro de um cliente novo **não tem abas**: Anamnese, Procedimentos, Financeiro, Fotos, Documentos e Histórico não existem antes do cliente ser salvo. Após salvar, navegar para a página do cliente (seção 21), onde as abas passam a existir.
+- Editar cliente reutiliza o mesmo formulário, dentro da aba "Dados Pessoais" do perfil.
+- Referência visual: `/design/referencias/cliente-novo-dados-pessoais.webp` (desconsiderar a barra de abas do print e o nome "Belleza", que é placeholder).
+
 ---
 
 # 23. Ícones
@@ -734,6 +794,7 @@ Biblioteca oficial do produto: **Phosphor** (`@phosphor-icons/react`).
 - Peso `regular` como padrão; `fill` apenas para indicar estado ativo quando necessário (ex. item selecionado).
 - Não misturar com Lucide, Tabler ou outra família.
 - Nunca desenhar SVG de ícone à mão; se faltar um glifo, escolher o mais próximo da própria Phosphor.
+- Exceção de cor documentada: o ícone do WhatsApp usa o verde do canal (token `--color-whatsapp`), somente nesse ícone.
 
 Ícones devem:
 
@@ -762,6 +823,14 @@ Empty
 ```
 
 Nenhuma tela deve depender exclusivamente do estado ideal com dados preenchidos.
+
+---
+
+# 24.1 Avisos e módulos futuros
+
+- **Aviso transitório** (toast): centralizado no rodapé, some em ~4s, apenas para confirmar ações concluídas ("Cliente cadastrado") ou erros de ações sem formulário. Erro de formulário fica no próprio formulário, nunca em aviso.
+- **Módulo ainda não disponível:** aparece no menu desabilitado com o selo "Em breve" (expandido) ou tooltip "(em breve)" (recolhido). Abas ainda não implementadas mostram empty state explicando o que existirá ali, sem prometer datas.
+- **Confirmação de ação destrutiva:** diálogo modal com título, consequência explicada e botão `danger` com o verbo da ação ("Anonimizar definitivamente"), nunca "OK".
 
 ---
 
@@ -850,7 +919,7 @@ Se houver dúvida entre adicionar ou remover um elemento:
   --primary-hover: #3476B4;
   --primary-light: #F0F6FC;
 
-  --background: #F8FAFC;
+  --background: #F1F5F9; /* gray-100 */
   --surface: #FFFFFF;
 
   --text-primary: #0F172A;
