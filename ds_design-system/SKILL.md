@@ -9,6 +9,8 @@ description: Design System da plataforma de gestão para práticas estéticas (A
 **Status:** Draft / v0.4.1 (v0.4.1: fundo da página no token `fundo` #E9EEF4. v0.4: fundo `gray-100`, perfil fora do menu lateral, ajuda contextual, avisos e módulos futuros. v0.2: fonte Geist, ícones Phosphor, implementação em Tailwind v4, modo escuro no roadmap. v0.3: sidebar flutuante e itens do menu, logo, tags, cadastro sem abas, visibilidade por papel)  
 **Objetivo:** estabelecer uma linguagem visual consistente para todas as telas do produto.
 
+**Base:** esta é a skill derivada do Anora a partir de `ds_design-system-base` (genérica, para qualquer sistema). Aqui ficam marca, paleta, telas e exceções do Anora; em caso de conflito, esta prevalece sobre a base.
+
 ---
 
 # 1. Direção visual
