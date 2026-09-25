@@ -20,6 +20,8 @@ Esta skill é um checklist. Antes de dar uma tarefa por concluída, percorra as 
 - Funções chamadas pelo app via RPC (`criar_organizacao`, `aceitar_convite`, `anonimizar_...`) ficam em `public`, são `security definer` e **validam a permissão dentro do corpo** antes de agir. Revogar `execute` de `public` e `anon`.
 - Operações irreversíveis (anonimizar, excluir definitivo) só por RPC com checagem de papel; nunca por `delete`/`update` liberado em política.
 - Tabelas de histórico (auditoria, consentimentos) **não têm política de update/delete**: são somente inserção.
+- Dados de funcionários também são dados pessoais: separar em níveis (básico visível à equipe; ficha pessoal para gestão e a própria pessoa; vínculo e anotações internas só para gestão, a pessoa não vê).
+- Papel de co-gestão não pode escalar privilégio: só a proprietária promove/rebaixa co-gestoras, e ninguém altera o próprio papel nem o da proprietária (testar os dois sentidos).
 
 ### Verificação obrigatória
 
@@ -41,6 +43,8 @@ Esta skill é um checklist. Antes de dar uma tarefa por concluída, percorra as 
 - Acesso por **URL assinada** de validade curta (ex.: 1h), com cache no cliente. Nunca URL pública para dado de cliente.
 - Imagem comprimida no navegador antes do upload (redimensionar + WebP): reduz custo e remove metadados EXIF (localização, aparelho).
 - Nome de arquivo novo a cada troca (evita cache servindo a imagem antiga) e remoção do arquivo anterior.
+- Se a gravação do caminho no banco falhar depois do upload, apagar o arquivo enviado (sem órfãos).
+- Recortar imagens no navegador antes do envio (saída quadrada, WebP) também padroniza tamanho e peso.
 - Fotos clínicas (antes/depois) em bucket separado das fotos de perfil, com políticas próprias (quem vê fotos clínicas é um grupo menor).
 
 ## 4. LGPD

@@ -81,7 +81,46 @@ Padrão com Supabase:
 - **RLS obrigatório** nessa tabela, com políticas de select/insert/update restritas a `auth.uid() = user_id`. É o RLS que torna seguro acessar o banco direto do navegador — sem ele, qualquer usuário logado leria o estado de todos.
 - **Chaves no frontend**: só a URL do projeto e a chave publicável/anon, via `VITE_SUPABASE_URL` e `VITE_SUPABASE_ANON_KEY` (em `.env.local`, que não vai para o git, e nas Environment Variables da Vercel). **Nunca** colocar a service role key em variável `VITE_*` — tudo com esse prefixo vai para o bundle público; se precisar dela, só dentro de uma função em `/api`.
 - **Arquivos (fotos, documentos)** não entram no blob: vão para o Supabase Storage, com o blob guardando só o caminho/URL. O blob precisa continuar pequeno o suficiente para ser salvo inteiro a cada alteração.
-- **Escrita**: `persist()` faz upsert do blob inteiro com debounce (agrupa alterações rápidas em uma escrita), e o campo de sessão "salvando..." indica escrita em andamento. Compare `meta.lastModified` ao carregar/salvar para detectar que outra sessão salvou algo mais novo, em vez de sobrescrever silenciosamente.
+- **Escrita**: `persist()` faz upsert do blob inteiro **sem debounce** — dispara na hora a cada alteração, mas nunca mais de uma escrita em paralelo: se uma nova alteração chega enquanto a anterior ainda está em voo, só marca "pendente" e reagenda com o estado mais atual assim que a atual terminar.
+
+  ```ts
+  let writeInFlight: Promise<void> | null = null;
+  let writePending = false;
+  function triggerWrite(){
+    if(writeInFlight){ writePending = true; return; }
+    writeInFlight = writeToBackend(state)
+      .catch(logError)
+      .finally(() => {
+        writeInFlight = null;
+        if(writePending){ writePending = false; triggerWrite(); }
+      });
+  }
+  ```
+
+  Debounce parece razoável à primeira vista (agrupa digitação rápida numa escrita só), mas é uma armadilha real, já encontrada em produção: `beforeunload`/`pagehide` não conseguem esperar de forma confiável por uma escrita assíncrona pendente, então um refresh logo depois de editar podia nunca persistir a última alteração — o debounce só faz sentido pro backend de arquivo local (onde não há essa janela de perda). O campo de sessão "salvando..." reflete `writeInFlight || writePending`.
+
+### Sincronização entre abas/janelas/dispositivos
+
+Com o mesmo usuário aberto em mais de uma aba/janela/dispositivo ao mesmo tempo, cada uma mantém sua própria cópia do blob em memória. Sem nenhuma sincronização, editar e salvar numa aba não atualiza a cópia das outras — a próxima escrita feita numa aba desatualizada sobrescreve silenciosamente a mudança feita em outro lugar, porque `persist()` sempre manda o blob inteiro (last-write-wins no nível do blob todo, não por campo).
+
+Resolver buscando o estado mais recente do backend nos momentos em que o usuário provavelmente vai começar a editar de novo, sempre condicionado a ser seguro:
+
+```ts
+async function refreshIfSafe(){
+  if(dirty || writeInFlight || writePending) return; // há algo local ainda não salvo
+  if(isEditingSomething()) return; // input/textarea/contenteditable focado agora
+  if(refreshInFlight) return;
+  refreshInFlight = true;
+  try{ const fresh = await fetchState(); applyState(fresh); render(); }
+  finally{ refreshInFlight = false; }
+}
+```
+
+Disparar em dois momentos: quando a janela/aba ganha foco (`window.addEventListener('focus', ...)` + `visibilitychange` voltando a visível) e quando `screenId` muda (um watcher no topo do render/efeito raiz comparando com o último valor renderizado, pra não disparar em todo re-render — só quando a tela realmente troca). Isso cobre tanto "voltei pra essa janela depois de editar em outra" quanto "fiquei um tempo na mesma janela navegando entre telas sem nunca trocar de aba".
+
+O guard de `isEditingSomething()` não é só cortesia: aplicar um blob novo por baixo de um formulário/editor aberto com rascunho não commitado troca as referências de objeto que aquele formulário está segurando, e o próximo commit pode escrever num objeto órfão que não existe mais no novo array — perdendo a edição em andamento silenciosamente. Só é seguro trocar o blob inteiro quando não há edição pendente.
+
+Este padrão **não** resolve edição simultânea de verdade (duas abas digitando o mesmo campo ao mesmo tempo, sem nunca trocar de foco/tela) — isso exigiria mesclagem campo a campo, fora do escopo deste padrão. O objetivo é eliminar o caso comum e o que realmente acontece na prática: editar numa aba, ir pra outra depois, e ter a edição anterior apagada sem aviso.
 
 Ambos os caminhos de carregamento (abrir arquivo local, entrar numa conta pela primeira vez) usam o mesmo `defaultState()` + seeds + `normalizeState()` descritos acima — nunca duplicar a lógica de "o que é um estado inicial válido" em dois lugares.
 
@@ -128,6 +167,18 @@ Exemplo de matriz (Anora, estúdio de estética):
 - **Schema versionado por migrations SQL** em `supabase/migrations/`, nunca alteração manual pelo painel. Tipos TypeScript gerados a partir do banco (`supabase gen types`) e mantidos atualizados.
 - Listagens paginam e filtram no banco (não carregar a tabela inteira para filtrar no navegador), mas os **cálculos de negócio** (idade, total gasto, frequência média) continuam em funções puras que recebem os dados já carregados. Se um agregado ficar pesado demais para calcular no cliente, ele vira uma view/função SQL — e a função pura correspondente deixa de existir, para não haver duas versões do cálculo.
 - Conflito de edição simultânea: `update ... where id = ? and updated_at = ?` (lock otimista); se nenhuma linha for afetada, avisar que outra pessoa alterou o registro e recarregar.
+
+### Pessoa ≠ acesso ao sistema
+
+- Separar a **pessoa cadastrada** (ex. `colaboradores`: quem trabalha na organização) da **conta com acesso** (`membros`: usuário + papel). A pessoa pode existir sem login (profissional que só aparece na agenda) e ganhar acesso depois, por convite vinculado ao cadastro (`convites.colaborador_id`); ao aceitar, a conta é ligada à pessoa.
+- Referências de negócio (profissional da cliente, agenda) apontam para a **pessoa**, nunca para `auth.users`.
+- Um trigger em `membros` garante que toda conta com acesso tenha um cadastro de pessoa.
+- Dados da pessoa em **níveis de visibilidade = tabelas separadas**: básico (toda a equipe), ficha pessoal (gestão + a própria pessoa), vínculo/anotações internas (só gestão).
+- Papel de co-gestão (ex. administradora): em vez de duplicar todas as políticas, a função `tem_papel` trata o papel de co-gestão como equivalente ao de proprietária, e as exceções (não mexer na proprietária nem em outras co-gestoras, só a proprietária promove) ficam nas políticas de `membros`/`convites`. Valor novo em enum é criado numa migration própria, antes da que o usa.
+
+### Arquivos
+
+- Toda troca de arquivo passa por uma função única (`substituirArquivo`): envia o novo, grava o caminho no registro e só então apaga o antigo. Se a gravação falhar, remove o arquivo recém-enviado (sem órfãos no storage).
 
 ### Segurança e LGPD
 
@@ -176,5 +227,7 @@ Uma constante de versão da aplicação (esquema tipo MAJOR.BUILD), num arquivo 
 - Um formulário de criação que computa um valor default mas nunca de fato o aplica ao objeto salvo é um bug clássico de copiar-e-colar de uma versão anterior do formulário — revisar se toda variável computada é realmente usada.
 - Ações que só podem acontecer uma vez (aceitar convite, registrar algo no primeiro acesso) disparadas dentro de `useEffect`: em desenvolvimento o StrictMode executa o efeito duas vezes, e a segunda chamada falha ("convite já utilizado"). Guardar o valor num `useRef` e zerá-lo antes do `await`.
 - Chamadas logo após o login falhando com "JWT issued at future" (diferença de relógio entre serviços do Supabase, comum em projeto recém-criado): repetir com espera curta só nesse erro, em vez de mostrar tela de erro.
+- Trigger genérico de auditoria assumindo que toda tabela tem `organizacao_id`/`id`: tabelas 1:1 (chave `cliente_id`, `colaborador_id`) e a própria tabela de organizações quebram o insert da auditoria, e a gravação principal falha junto. Testar a auditoria em toda tabela nova.
 - `createClient('')` com variável de ambiente vazia derruba o app inteiro com tela em branco: tratar valor vazio como ausente.
 - Uma ação de "editar todos os itens de um grupo relacionado de uma vez" que copia campos demais do item editado para os outros — incluindo campos que deveriam ser únicos por item (um índice de posição, uma data específica daquele item) — corrompe os outros itens do grupo. Ao editar em lote, ser explícito sobre exatamente quais campos são compartilhados vs. únicos por item.
+- Um campo de texto rico (`contenteditable`) ou qualquer editor que só persiste no evento `blur` é uma perda de dado silenciosa esperando pra acontecer: se o usuário digitar e sair da tela (trocar de tela, dar refresh, fechar a aba) sem antes clicar fora do campo, a edição nunca é commitada nem pro estado local. Sempre parear o `blur` com um autosave por inatividade no evento `input` (debounce de poucos segundos, chamando a mesma função de commit do `blur`) — e nesse commit por inatividade, persistir sem re-renderizar o campo em si, para não perder a posição do cursor no meio da digitação.

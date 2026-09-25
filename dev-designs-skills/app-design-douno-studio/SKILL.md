@@ -3,10 +3,10 @@ name: ds_design-system
 description: Design System da plataforma de gestão para práticas estéticas (Anora) — paleta, tipografia Geist, Tailwind v4 com tokens via @theme, ícones Phosphor, layout com sidebar compacta, cards, formulários, tabelas, estados e checklist de revisão. Use sempre que for criar ou revisar qualquer tela, componente visual ou estilo desse produto. Complementa a ds_app-architecture-skill (que cobre dados/estado/persistência) e prevalece sobre a taste-skill em caso de conflito, exceto onde indicado.
 ---
 
-# Design System v0.4
+# Design System v0.5
 ## Plataforma de Gestão para Práticas Estéticas
 
-**Status:** Draft / v0.4.1 (v0.4.1: fundo da página no token `fundo` #E9EEF4. v0.4: fundo `gray-100`, perfil fora do menu lateral, ajuda contextual, avisos e módulos futuros. v0.2: fonte Geist, ícones Phosphor, implementação em Tailwind v4, modo escuro no roadmap. v0.3: sidebar flutuante e itens do menu, logo, tags, cadastro sem abas, visibilidade por papel)  
+**Status:** Draft / v0.5 (v0.5: identidade do estúdio no topo do menu e assinatura Anora no rodapé, ícones só contorno, item Equipe, paginação padrão, recorte de imagem, aba "Em breve". v0.4.1: v0.4.1: fundo da página no token `fundo` #E9EEF4. v0.4: fundo `gray-100`, perfil fora do menu lateral, ajuda contextual, avisos e módulos futuros. v0.2: fonte Geist, ícones Phosphor, implementação em Tailwind v4, modo escuro no roadmap. v0.3: sidebar flutuante e itens do menu, logo, tags, cadastro sem abas, visibilidade por papel)  
 **Objetivo:** estabelecer uma linguagem visual consistente para todas as telas do produto.
 
 **Base:** esta é a skill derivada do Anora a partir de `ds_design-system-base` (genérica, para qualquer sistema). Aqui ficam marca, paleta, telas e exceções do Anora; em caso de conflito, esta prevalece sobre a base.
@@ -356,12 +356,12 @@ Características:
 - Largura aproximada: 72–88px quando recolhida
 - Ícones centralizados
 - Item ativo com background `primary-50/100`, raio `radius-md`
-- Ícone ativo em `primary-600`
+- Ícone ativo em `primary-600`, **sempre só contorno** (peso `regular`): o destaque vem do fundo e da cor, nunca de ícone preenchido
 - Tooltip ao passar o mouse (somente no modo recolhido)
 - Botão de expandir/recolher (chevron discreto na borda direita do painel)
 - Separação entre navegação principal e ações secundárias (notificações, ajuda)
-- Na parte inferior: somente o atalho de **Ajuda**. O perfil do usuário **não** fica no menu lateral (fica na topbar)
-- Logo no topo: **símbolo "A" da Anora** no modo recolhido
+- Na parte inferior: o atalho de **Ajuda** e, abaixo dele, a **assinatura Anora** discreta (cinza, ~50% de opacidade): só o símbolo "A" recolhido, símbolo + "ANORA" expandido. O perfil do usuário **não** fica no menu lateral (fica na topbar)
+- Topo: **identidade do estúdio**. Logo do estúdio (quadrado, 36px, raio `lg`) no modo recolhido; logo + nome do estúdio expandido. Sem logo cadastrado: iniciais do estúdio em branco sobre `primary-600`
 - O estado expandido/recolhido é preferência do usuário (lembrar entre sessões)
 
 Itens da navegação principal, nesta ordem (ícones Phosphor):
@@ -372,9 +372,10 @@ Agenda          CalendarBlank
 Clientes        User
 Procedimentos   FlowerLotus
 Financeiro      Wallet
+Equipe          UsersThree   (somente gestão)
 Estoque         Package
 Relatórios      ChartBar
-Configurações   GearSix
+Configurações   GearSix      (somente gestão)
 ```
 
 Itens exibidos dependem do papel do usuário (ex. recepção não vê Financeiro, Relatórios nem Configurações). Um módulo ainda não implementado aparece desabilitado com tooltip "Em breve", não some da lista.
@@ -384,7 +385,7 @@ Itens exibidos dependem do papel do usuário (ex. recepção não vê Financeiro
 Quando expandida:
 
 - Exibir ícone + texto (~240px de largura)
-- Logo horizontal: símbolo "A" + "ANORA" ao lado
+- Topo: logo + nome do estúdio (truncado se longo)
 - Manter mesma hierarquia visual
 - Não alterar a identidade dos itens
 - A expansão empurra o conteúdo (não sobrepõe) no desktop; no tablet/mobile pode sobrepor com overlay
@@ -392,7 +393,7 @@ Quando expandida:
 ### Logo
 
 - Referência em `/design/referencias/logo-anora.png`. Cor oficial da marca ≈ `primary-900` (`#213F5F`); o logo usa o token, não um hex próprio.
-- Versões: símbolo (sidebar recolhida, favicon), horizontal (sidebar expandida), vertical (tela de login).
+- Versões: símbolo (assinatura no rodapé do menu, favicon), horizontal (assinatura expandida), vertical/painel da marca (tela de login). O topo do menu é do estúdio, não do Anora.
 - Preferir SVG. Enquanto não houver vetor oficial, usar o PNG; nunca redesenhar o logo à mão em SVG.
 
 ---
@@ -793,7 +794,7 @@ Utilizar uma única família de ícones.
 
 Biblioteca oficial do produto: **Phosphor** (`@phosphor-icons/react`).
 
-- Peso `regular` como padrão; `fill` apenas para indicar estado ativo quando necessário (ex. item selecionado).
+- Peso `regular` sempre, inclusive em itens ativos/selecionados (decisão do produto: ícones só com contorno). `fill` apenas em ícones de marca de terceiros (ex. WhatsApp).
 - Não misturar com Lucide, Tabler ou outra família.
 - Nunca desenhar SVG de ícone à mão; se faltar um glifo, escolher o mais próximo da própria Phosphor.
 - Exceção de cor documentada: o ícone do WhatsApp usa o verde do canal (token `--color-whatsapp`), somente nesse ícone.
@@ -825,6 +826,20 @@ Empty
 ```
 
 Nenhuma tela deve depender exclusivamente do estado ideal com dados preenchidos.
+
+---
+
+# 24.0 Paginação e imagens
+
+**Paginação** (toda lista paginada do produto usa o mesmo componente):
+- Rodapé: "Mostrando X a Y de Z <itens>" + seletor "Por página" (10, 30, 50, 100; padrão **10**) à esquerda; primeira / anterior / números com reticências / próxima / última à direita. Página atual em `primary-600`.
+- A quantidade escolhida fica lembrada no navegador, com uma chave por tipo de lista (todas as listas de clientes compartilham a mesma).
+- Trocar filtro, busca ou quantidade por página volta para a página 1.
+
+**Envio de imagem** (foto de cliente, avatar, foto da equipe, logo):
+- Escolher o arquivo sempre abre o modal **"Ajustar …"** com área de recorte, zoom (controle deslizante) e arrastar para posicionar; botões "Cancelar" e "Usar imagem".
+- Pessoas: máscara redonda. Logo: quadrado, podendo afastar além da borda (logos largos cabem inteiros, com fundo transparente).
+- Saída sempre quadrada em WebP (800px fotos de clientes, 400px avatares/equipe, 512px logo).
 
 ---
 
