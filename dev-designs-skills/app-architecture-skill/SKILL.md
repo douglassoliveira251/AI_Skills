@@ -173,6 +173,7 @@ Exemplo de matriz (Anora, estúdio de estética):
 - Separar a **pessoa cadastrada** (ex. `colaboradores`: quem trabalha na organização) da **conta com acesso** (`membros`: usuário + papel). A pessoa pode existir sem login (profissional que só aparece na agenda) e ganhar acesso depois, por convite vinculado ao cadastro (`convites.colaborador_id`); ao aceitar, a conta é ligada à pessoa.
 - Referências de negócio (profissional da cliente, agenda) apontam para a **pessoa**, nunca para `auth.users`.
 - Um trigger em `membros` garante que toda conta com acesso tenha um cadastro de pessoa.
+- **Desativar a pessoa revoga o acesso no banco** (trigger `before update of ativo`): bloqueia a conta vinculada e apaga convites pendentes. Reativar não devolve o acesso sozinho. O mesmo trigger impede desativar o próprio cadastro, a proprietária, e uma co-gestora por quem não é proprietária.
 - Dados da pessoa em **níveis de visibilidade = tabelas separadas**: básico (toda a equipe), ficha pessoal (gestão + a própria pessoa), vínculo/anotações internas (só gestão).
 - Papel de co-gestão (ex. administradora): em vez de duplicar todas as políticas, a função `tem_papel` trata o papel de co-gestão como equivalente ao de proprietária, e as exceções (não mexer na proprietária nem em outras co-gestoras, só a proprietária promove) ficam nas políticas de `membros`/`convites`. Valor novo em enum é criado numa migration própria, antes da que o usa.
 

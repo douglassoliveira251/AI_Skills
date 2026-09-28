@@ -21,6 +21,7 @@ Esta skill é um checklist. Antes de dar uma tarefa por concluída, percorra as 
 - Operações irreversíveis (anonimizar, excluir definitivo) só por RPC com checagem de papel; nunca por `delete`/`update` liberado em política.
 - Tabelas de histórico (auditoria, consentimentos) **não têm política de update/delete**: são somente inserção.
 - Dados de funcionários também são dados pessoais: separar em níveis (básico visível à equipe; ficha pessoal para gestão e a própria pessoa; vínculo e anotações internas só para gestão, a pessoa não vê).
+- Desligamento revoga tudo de uma vez e no banco (não depende da tela): desativar o cadastro da pessoa bloqueia a conta e cancela convites pendentes; reativar exige liberar o acesso de novo.
 - Papel de co-gestão não pode escalar privilégio: só a proprietária promove/rebaixa co-gestoras, e ninguém altera o próprio papel nem o da proprietária (testar os dois sentidos).
 
 ### Verificação obrigatória

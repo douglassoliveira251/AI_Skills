@@ -133,8 +133,8 @@ Hierarquia por peso e cor, não por tamanhos gritantes. Nenhum texto abaixo de 1
 - Recolhido: 72–88px, só ícones centralizados, **tooltip** com o nome no hover/foco, **símbolo da marca** no topo.
 - Expandido: ~240px, ícone + texto, **logo horizontal** no topo. Botão circular de expandir/recolher na borda direita. A preferência fica salva no navegador.
 - Desktop: expandir **empurra** o conteúdo. Tablet/mobile: o menu abre sobreposto com fundo escurecido, a partir de um botão na barra superior.
-- Item ativo: fundo `primary-50`, ícone `primary-600` preenchido (`fill`). Itens não selecionados: contorno (`regular`), ícone e texto na mesma cor (`gray-500`) para todos, inclusive os "Em breve".
-- Topo do menu: identidade de quem usa o sistema (logo + nome da empresa/cliente do produto; sem logo, iniciais sobre a cor primária). A marca do produto, quando o sistema é vendido para outras empresas, fica discreta no rodapé do menu.
+- Item ativo: fundo `primary-50`, ícone e texto `primary-600`/`700`. Ícones **sempre só contorno** (`regular`), inclusive no ativo: nada de ícone preenchido. Itens não selecionados: ícone e texto na mesma cor (`gray-500`) para todos, inclusive os "Em breve".
+- Topo do menu: logo do produto. A identidade da empresa cliente (logo + nome), quando o sistema é vendido a várias empresas, vai fora do menu lateral (ex. barra superior), para não disputar com a navegação.
 - Parte inferior: somente ações secundárias (ex. Ajuda). **O perfil do usuário não fica no menu lateral.**
 - Itens visíveis dependem da permissão do usuário. Módulo ainda não disponível aparece desabilitado com selo "Em breve" (expandido) ou tooltip "(em breve)" (recolhido), em vez de sumir.
 
@@ -225,7 +225,7 @@ Altura 44px (normal) ou 36px (compacto), raio `md`, ícone de 18px à esquerda o
 
 ### Ícones
 
-- **Uma única biblioteca** no produto. Padrão sugerido: **Phosphor** (`@phosphor-icons/react`), peso `regular`; `fill` apenas no item ativo do menu e em ícones de marcas de terceiros.
+- **Uma única biblioteca** no produto. Padrão sugerido: **Phosphor** (`@phosphor-icons/react`), peso `regular` em tudo, inclusive estados ativos; `fill` só em ícones de marcas de terceiros.
 - Tamanho 18–20px (22px na barra superior). Nunca desenhar SVG de ícone à mão. Ícones não competem com o texto.
 
 ## 7. Estados
