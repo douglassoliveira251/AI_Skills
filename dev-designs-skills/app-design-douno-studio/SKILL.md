@@ -6,7 +6,7 @@ description: Design System da plataforma de gestão para práticas estéticas (A
 # Design System v0.5
 ## Plataforma de Gestão para Práticas Estéticas
 
-**Status:** Draft / v0.5 (v0.5: identidade do estúdio no topo do menu e assinatura Anora no rodapé, ícones só contorno, item Equipe, paginação padrão, recorte de imagem, aba "Em breve". v0.4.1: v0.4.1: fundo da página no token `fundo` #E9EEF4. v0.4: fundo `gray-100`, perfil fora do menu lateral, ajuda contextual, avisos e módulos futuros. v0.2: fonte Geist, ícones Phosphor, implementação em Tailwind v4, modo escuro no roadmap. v0.3: sidebar flutuante e itens do menu, logo, tags, cadastro sem abas, visibilidade por papel)  
+**Status:** Draft / v0.5 (v0.5.1: ícone ativo do menu volta a ser preenchido; itens inativos todos em `gray-500`. v0.5: identidade do estúdio no topo do menu e assinatura Anora no rodapé, item Equipe, paginação padrão, recorte de imagem, aba "Em breve". v0.4.1: v0.4.1: fundo da página no token `fundo` #E9EEF4. v0.4: fundo `gray-100`, perfil fora do menu lateral, ajuda contextual, avisos e módulos futuros. v0.2: fonte Geist, ícones Phosphor, implementação em Tailwind v4, modo escuro no roadmap. v0.3: sidebar flutuante e itens do menu, logo, tags, cadastro sem abas, visibilidade por papel)  
 **Objetivo:** estabelecer uma linguagem visual consistente para todas as telas do produto.
 
 **Base:** esta é a skill derivada do Anora a partir de `ds_design-system-base` (genérica, para qualquer sistema). Aqui ficam marca, paleta, telas e exceções do Anora; em caso de conflito, esta prevalece sobre a base.
@@ -356,7 +356,8 @@ Características:
 - Largura aproximada: 72–88px quando recolhida
 - Ícones centralizados
 - Item ativo com background `primary-50/100`, raio `radius-md`
-- Ícone ativo em `primary-600`, **sempre só contorno** (peso `regular`): o destaque vem do fundo e da cor, nunca de ícone preenchido
+- Ícone ativo em `primary-600` com peso **`fill`** (preenchido); itens não selecionados em peso `regular` (contorno)
+- Itens não selecionados: ícone e texto em `gray-500`, todos com a mesma cor (disponíveis ou "Em breve"); hover escurece para `gray-900` com fundo `gray-100`
 - Tooltip ao passar o mouse (somente no modo recolhido)
 - Botão de expandir/recolher (chevron discreto na borda direita do painel)
 - Separação entre navegação principal e ações secundárias (notificações, ajuda)
@@ -794,7 +795,7 @@ Utilizar uma única família de ícones.
 
 Biblioteca oficial do produto: **Phosphor** (`@phosphor-icons/react`).
 
-- Peso `regular` sempre, inclusive em itens ativos/selecionados (decisão do produto: ícones só com contorno). `fill` apenas em ícones de marca de terceiros (ex. WhatsApp).
+- Peso `regular` como padrão; `fill` somente no item ativo do menu lateral e em ícones de marca de terceiros (ex. WhatsApp).
 - Não misturar com Lucide, Tabler ou outra família.
 - Nunca desenhar SVG de ícone à mão; se faltar um glifo, escolher o mais próximo da própria Phosphor.
 - Exceção de cor documentada: o ícone do WhatsApp usa o verde do canal (token `--color-whatsapp`), somente nesse ícone.

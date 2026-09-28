@@ -44,6 +44,7 @@ Esta skill é um checklist. Antes de dar uma tarefa por concluída, percorra as 
 - Imagem comprimida no navegador antes do upload (redimensionar + WebP): reduz custo e remove metadados EXIF (localização, aparelho).
 - Nome de arquivo novo a cada troca (evita cache servindo a imagem antiga) e remoção do arquivo anterior.
 - Se a gravação do caminho no banco falhar depois do upload, apagar o arquivo enviado (sem órfãos).
+- Documentos sensíveis (contratos, documentos pessoais de funcionários) em **bucket próprio**, separado das fotos, com acesso só da gestão; nome do arquivo no storage aleatório (uuid), nunca o nome original; link de download assinado de curta duração (ex. 5 min); exclusão sempre com confirmação e registrada na auditoria.
 - Recortar imagens no navegador antes do envio (saída quadrada, WebP) também padroniza tamanho e peso.
 - Fotos clínicas (antes/depois) em bucket separado das fotos de perfil, com políticas próprias (quem vê fotos clínicas é um grupo menor).
 
