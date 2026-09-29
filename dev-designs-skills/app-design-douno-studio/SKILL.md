@@ -1096,7 +1096,7 @@ visuais.
 
 ## Foto: um controle só
 
-Foto de pessoa, serviço, cliente ou logo usa o mesmo componente: imagem (redonda para pessoas, quadrada para serviços e logos), botão "Adicionar foto" (caixa tracejada quando ainda não há), "Trocar foto" e "Remover", com o mesmo recorte e as mesmas mensagens. Nunca criar um controle de foto novo por tela: cada variação vira um botão que falta em algum lugar (ex.: sem "Remover" no cadastro de profissional).
+Foto de pessoa, serviço, cliente ou logo usa o mesmo componente: a imagem (redonda para pessoas, quadrada para serviços e logos, com as iniciais quando não há foto), um **ícone de câmera no canto** para adicionar ou trocar, e "Remover foto" logo abaixo quando há foto, com o mesmo recorte e as mesmas mensagens. Nunca criar um controle de foto novo por tela: cada variação vira um botão que falta em algum lugar (ex.: sem "Remover" no cadastro de profissional).
 
 ## Meu perfil (quem não gere o estúdio)
 
