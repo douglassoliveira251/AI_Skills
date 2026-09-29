@@ -1093,3 +1093,11 @@ visuais.
 - No lugar de abas, o cadastro traz o essencial em cima (o que o caso comum exige) e, abaixo, **seções recolhíveis**: ícone em quadrado `primary-50`, título, resumo de uma linha do que está preenchido e seta. Um único botão Salvar no fim da página.
 - Seção com erro de validação abre sozinha e mostra um ponto vermelho. Seções de dado sensível (custo, comissão) simplesmente não existem para quem não pode vê-las.
 - **Campo de pesquisa para escolher entre muitos itens** (ex.: serviço no agendamento): caixa com lupa, lista filtrada sem acento embaixo (fluxo normal, não flutuante, para não ser cortada pela rolagem do modal), setas + Enter + Esc, e o escolhido vira um cartão com "Trocar".
+
+## Foto: um controle só
+
+Foto de pessoa, serviço, cliente ou logo usa o mesmo componente: imagem (redonda para pessoas, quadrada para serviços e logos), botão "Adicionar foto" (caixa tracejada quando ainda não há), "Trocar foto" e "Remover", com o mesmo recorte e as mesmas mensagens. Nunca criar um controle de foto novo por tela: cada variação vira um botão que falta em algum lugar (ex.: sem "Remover" no cadastro de profissional).
+
+## Meu perfil (quem não gere o estúdio)
+
+Campos que a pessoa não altera aparecem desabilitados (cinza), com um aviso curto explicando a quem pedir a correção. O que ela pode alterar (foto e nome social) fica no topo, editável. Para a gestão, o mesmo cartão vira totalmente editável, com um atalho para a ficha completa.

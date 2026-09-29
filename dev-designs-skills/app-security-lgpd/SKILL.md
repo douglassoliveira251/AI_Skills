@@ -111,3 +111,10 @@ Esta skill é um checklist. Antes de dar uma tarefa por concluída, percorra as 
 - RPC `SECURITY DEFINER` de cadastro rápido: valida o papel dentro da função, `search_path` vazio, `revoke` de `public`/`anon` e `grant` só a `authenticated`. O aviso do advisor para ela é esperado.
 - Horário do estúdio, horário de trabalho e mensagens: leitura para a equipe, escrita só da gestão. A mensagem é um texto com variáveis, montado no navegador; nenhum dado da cliente vai a terceiros além do link aberto pela própria pessoa no WhatsApp.
 - Minimização: campos que o negócio não usa (contato de emergência da equipe) são removidos do banco, não apenas escondidos.
+
+## Edição do próprio cadastro (limite por coluna)
+
+- RLS decide **quais linhas**; para liberar só **algumas colunas** (a pessoa altera nome social e foto, a gestão altera o resto) use um trigger `before update` que compara a linha nova com a antiga sem os campos liberados e recusa se algo mais mudou. Três exceções explícitas: gestão (tudo), rotina interna sem usuário logado, e aceitar convite (só o vínculo com a conta muda).
+- Dados pessoais (CPF, RG, endereço, telefone) ficam com leitura para a própria pessoa e escrita só da gestão, com aviso na tela ("fale com a administração").
+- Arquivos do próprio cadastro (foto): policy de storage que só aceita a pasta cuja pessoa é a logada e cuja organização confere com a do cadastro, para ninguém gravar na pasta de outra ou de outro estúdio.
+- Sempre testar por papel em SQL (transação revertida): a própria pessoa, outra pessoa, recepção e gestão.
