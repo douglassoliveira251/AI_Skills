@@ -212,6 +212,16 @@ Os detalhes de RLS, storage, consentimentos, auditoria, autenticação e publica
 - Usuários de teste (um por papel) podem ser criados por SQL em `auth.users` + `auth.identities`, com senha via `extensions.crypt(..., extensions.gen_salt('bf'))` e `email_confirmed_at` preenchido, evitando depender de e-mail de confirmação. Dados de exemplo ficam numa organização de demonstração separada.
 - Se o banco de teste for o mesmo de produção, listar essas contas no CLAUDE.md do projeto e removê-las antes do uso real.
 
+### Agenda (calendário de atendimentos)
+
+- **Modelo:** `agendamentos` (cliente, serviço, profissional, início, duração, fim, status), `agenda_bloqueios` (almoço, férias), `colaboradores_horarios` (horário semanal da profissional; sem linhas = segue o estúdio) e `agenda_config` (abre/fecha, degrau da grade, dias e textos de mensagem). Tudo em UTC no banco (`timestamptz`); a tela usa hora local.
+- **Regras no banco, não só na tela:** um trigger calcula o `fim` e valida que a profissional realiza o serviço, que ambos estão ativos e que cliente/serviço/profissional são do mesmo estúdio. Choque de horário **só avisa** (encaixes existem): a regra é uma função pura (`avisosDoHorario`) usada pelo formulário.
+- **Nunca apagar:** agendamento muda de status (agendado, confirmado, concluído, faltou, cancelado). Cancelados ficam ocultos por padrão.
+- **Grade:** um componente só serve o dia (uma coluna por profissional) e a semana (uma coluna por dia). Posição e altura vêm de minutos (`px por minuto` fixo); cartões sobrepostos se dividem lado a lado por uma função pura (`distribuirFaixas`). A visão do mês é outro componente simples (contagem e primeiros itens; clicar abre o dia).
+- **Cliente na agenda:** busca por nome ou celular na mesma caixa; cadastro rápido (nome + celular) só é gravado ao salvar o agendamento; quem não lê contato (atendente) usa uma RPC de cadastro rápido e depois enxerga a cliente porque passa a ter agendamento com ela.
+- **Mensagem de WhatsApp:** modelo com variáveis (`{cliente}`, `{servico}`...) editável pelo estúdio; a tela só monta o link `wa.me` com o texto pronto. Nada é enviado sozinho.
+- **Menu:** mostrar só o que já existe. Módulo futuro entra no menu quando for construído, não antes.
+
 ## Convenção de ações CRUD por entidade
 
 Cada entidade no store ganha um conjunto pequeno e uniforme de ações, não uma ação por campo:
@@ -248,3 +258,7 @@ Uma constante de versão da aplicação (esquema tipo MAJOR.BUILD), num arquivo 
 - `createClient('')` com variável de ambiente vazia derruba o app inteiro com tela em branco: tratar valor vazio como ausente.
 - Uma ação de "editar todos os itens de um grupo relacionado de uma vez" que copia campos demais do item editado para os outros — incluindo campos que deveriam ser únicos por item (um índice de posição, uma data específica daquele item) — corrompe os outros itens do grupo. Ao editar em lote, ser explícito sobre exatamente quais campos são compartilhados vs. únicos por item.
 - Um campo de texto rico (`contenteditable`) ou qualquer editor que só persiste no evento `blur` é uma perda de dado silenciosa esperando pra acontecer: se o usuário digitar e sair da tela (trocar de tela, dar refresh, fechar a aba) sem antes clicar fora do campo, a edição nunca é commitada nem pro estado local. Sempre parear o `blur` com um autosave por inatividade no evento `input` (debounce de poucos segundos, chamando a mesma função de commit do `blur`) — e nesse commit por inatividade, persistir sem re-renderizar o campo em si, para não perder a posição do cursor no meio da digitação.
+
+- Elemento `sticky`/`z-10` dentro de área rolável (grade de agenda, tabelas largas) passa por cima do cabeçalho fixo da página: isolar o componente com `isolate` para o z-index não vazar.
+- Função chamada `usarAlgo` que usa hooks não é reconhecida como hook (o lint acusa erro de regras de hooks): custom hooks começam com `use`.
+- Coluna de dados sensíveis removida da ficha (ex.: contato de emergência) exige migration que apaga a coluna e limpeza dos tipos/telas; simplificar formulário também é minimização de dados.

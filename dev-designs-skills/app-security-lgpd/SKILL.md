@@ -103,3 +103,11 @@ Esta skill é um checklist. Antes de dar uma tarefa por concluída, percorra as 
 - [ ] Textos legais com versão atualizada quando alterados
 - [ ] Site URL/Redirect URLs corretas para o ambiente
 - [ ] Contas/dados de teste identificados para remoção
+
+## Agenda e cadastro rápido
+
+- Agendamento: gestão e recepção veem todos; atendente só os das próprias clientes (RLS por colaborador vinculado ao usuário). Sem `delete`: cancelar é mudar status.
+- A função "atende a cliente" passa a considerar também agendamento não cancelado com a profissional (a atendente ganha acesso a nome, anamnese e fotos, nunca a contato).
+- RPC `SECURITY DEFINER` de cadastro rápido: valida o papel dentro da função, `search_path` vazio, `revoke` de `public`/`anon` e `grant` só a `authenticated`. O aviso do advisor para ela é esperado.
+- Horário do estúdio, horário de trabalho e mensagens: leitura para a equipe, escrita só da gestão. A mensagem é um texto com variáveis, montado no navegador; nenhum dado da cliente vai a terceiros além do link aberto pela própria pessoa no WhatsApp.
+- Minimização: campos que o negócio não usa (contato de emergência da equipe) são removidos do banco, não apenas escondidos.

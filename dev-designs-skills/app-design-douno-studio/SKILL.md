@@ -1078,3 +1078,12 @@ A plataforma deve parecer:
 A sofisticação deve surgir da consistência, espaçamento, tipografia,
 hierarquia e qualidade dos componentes — e não da quantidade de elementos
 visuais.
+
+## Agenda (grade de horários)
+
+- **Cartões por status**, sempre com cor + borda esquerda de 4px + texto (nunca só cor): agendado (branco, cinza), confirmado (primary-50), concluído (success-50), faltou (warning-50), cancelado (cinza tracejado e riscado), bloqueio (cinza-100).
+- **Grade:** coluna de horas fixa à esquerda, cabeçalho da coluna com avatar + nome + cargo, linha vermelha (`danger-600`) na hora atual, faixas fora do horário de trabalho em `gray-50`. Clicar num horário vazio abre o formulário já preenchido. No celular, o dia mostra uma profissional por vez com seletor.
+- **Alternância Dia / Semana / Mês** em controle segmentado; profissional em foco em `Select` na semana e no mês.
+- **Formulário em modal:** tipo (Agendamento | Bloqueio) no topo, cliente, serviço, profissional, data, horário, duração e observação. Avisos (choque, folga, fora do horário) em caixa âmbar, sem impedir o salvar. Depois de salvar, um passo de sucesso oferece o botão de WhatsApp (verde oficial do canal, único uso do token `whatsapp`).
+- **Menu lateral:** só itens que existem; sem selo "Em breve".
+- **Configuração de negócio** (categorias, horário, mensagens) fica numa aba "Personalização" de Configurações, não em telas soltas no menu.
