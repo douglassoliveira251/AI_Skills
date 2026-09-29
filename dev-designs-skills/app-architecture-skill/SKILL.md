@@ -183,6 +183,11 @@ Exemplo de matriz (Anora, estúdio de estética):
 - Campos "ou um, ou outro" (ex.: tipo + valor de comissão): `check ((tipo is null) = (valor is null))` e regra própria por tipo, para impedir estado inválido no banco.
 - Sugestões iniciais por organização (ex.: categorias) entram na função que cria a organização, e uma migration preenche as organizações existentes.
 
+### Listas auxiliares (categorias) e exclusão
+
+- Chave estrangeira do item para a categoria com `on delete set null` (o item continua existindo, "sem categoria"); regras que dependem da categoria (ex.: exceções de comissão) com `on delete cascade`. A tela de exclusão consulta antes quantos itens e regras serão afetados e mostra no diálogo.
+- Unicidade por organização ignorando maiúsculas: índice único em `(organizacao_id, lower(nome))`.
+
 ### Formulário com várias abas e listas filhas
 
 - Um estado só no componente da página (`ServicoForm`), com escalares e listas filhas (pacotes, profissionais, materiais); um `salvar` na camada `data/` que grava escalares com lock otimista e **sincroniza cada lista** (remove o que saiu, faz upsert do que ficou/entrou). IDs novos são gerados no cliente (`crypto.randomUUID()`). Dirty = comparar o formulário com o carregado.

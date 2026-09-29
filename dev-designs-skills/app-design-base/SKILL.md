@@ -136,6 +136,7 @@ Hierarquia por peso e cor, não por tamanhos gritantes. Nenhum texto abaixo de 1
 - Item ativo: fundo `primary-50`, ícone e texto `primary-600`/`700`. Ícones **sempre só contorno** (`regular`), inclusive no ativo: nada de ícone preenchido. Itens não selecionados: ícone e texto na mesma cor (`gray-500`) para todos, inclusive os "Em breve".
 - Topo do menu: logo do produto. A identidade da empresa cliente (logo + nome), quando o sistema é vendido a várias empresas, vai fora do menu lateral (ex. barra superior), para não disputar com a navegação.
 - Parte inferior: somente ações secundárias (ex. Ajuda). **O perfil do usuário não fica no menu lateral.**
+- **Listas auxiliares do catálogo (categorias, tags)** ganham tela própria de gestão: criar no topo, renomear no lugar, excluir com confirmação que diz o impacto (itens que ficam sem categoria, regras removidas), contagem de uso por linha. Criar "na hora" dentro do cadastro continua permitido, mas editar e excluir moram só na tela de gestão.
 - **Submenu (grupo de itens relacionados)**: abre **recolhido por padrão** e abre sozinho só quando a tela atual pertence a ele. Expandido: acordeão com filhos indentados e linha vertical clara à esquerda. Recolhido: clicar no ícone abre uma janelinha à direita com os filhos (fecha ao clicar fora ou navegar). Só agrupe quando houver 2 ou mais itens da mesma família.
 - Itens visíveis dependem da permissão do usuário. Módulo ainda não disponível aparece desabilitado com selo "Em breve" (expandido) ou tooltip "(em breve)" (recolhido), em vez de sumir.
 

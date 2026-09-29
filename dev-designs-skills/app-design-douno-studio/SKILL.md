@@ -3,10 +3,10 @@ name: ds_design-system
 description: Design System da plataforma de gestão para práticas estéticas (Anora) — paleta, tipografia Geist, Tailwind v4 com tokens via @theme, ícones Phosphor, layout com sidebar compacta, cards, formulários, tabelas, estados e checklist de revisão. Use sempre que for criar ou revisar qualquer tela, componente visual ou estilo desse produto. Complementa a ds_app-architecture-skill (que cobre dados/estado/persistência) e prevalece sobre a taste-skill em caso de conflito, exceto onde indicado.
 ---
 
-# Design System v0.6
+# Design System v0.7
 ## Plataforma de Gestão para Práticas Estéticas
 
-**Status:** Draft / v0.6 (v0.6: submenu Catálogo, campos numéricos, cadastro em abas com um salvar. v0.5.2: ícones só contorno também no ativo; logo Anora de volta ao topo do menu (identidade do estúdio fora do menu). v0.5.1: itens inativos todos em `gray-500`. v0.5: identidade do estúdio no topo do menu e assinatura Anora no rodapé, item Equipe, paginação padrão, recorte de imagem, aba "Em breve". v0.4.1: v0.4.1: fundo da página no token `fundo` #E9EEF4. v0.4: fundo `gray-100`, perfil fora do menu lateral, ajuda contextual, avisos e módulos futuros. v0.2: fonte Geist, ícones Phosphor, implementação em Tailwind v4, modo escuro no roadmap. v0.3: sidebar flutuante e itens do menu, logo, tags, cadastro sem abas, visibilidade por papel)  
+**Status:** Draft / v0.7 (v0.7: menu Profissionais, tela de Categorias. v0.6: v0.6: submenu Catálogo, campos numéricos, cadastro em abas com um salvar. v0.5.2: ícones só contorno também no ativo; logo Anora de volta ao topo do menu (identidade do estúdio fora do menu). v0.5.1: itens inativos todos em `gray-500`. v0.5: identidade do estúdio no topo do menu e assinatura Anora no rodapé, item Equipe, paginação padrão, recorte de imagem, aba "Em breve". v0.4.1: v0.4.1: fundo da página no token `fundo` #E9EEF4. v0.4: fundo `gray-100`, perfil fora do menu lateral, ajuda contextual, avisos e módulos futuros. v0.2: fonte Geist, ícones Phosphor, implementação em Tailwind v4, modo escuro no roadmap. v0.3: sidebar flutuante e itens do menu, logo, tags, cadastro sem abas, visibilidade por papel)  
 **Objetivo:** estabelecer uma linguagem visual consistente para todas as telas do produto.
 
 **Base:** esta é a skill derivada do Anora a partir de `ds_design-system-base` (genérica, para qualquer sistema). Aqui ficam marca, paleta, telas e exceções do Anora; em caso de conflito, esta prevalece sobre a base.
@@ -373,13 +373,13 @@ Agenda          CalendarBlank
 Clientes        User
 Procedimentos   FlowerLotus
 Financeiro      Wallet
-Equipe          UsersThree   (somente gestão)
+Profissionais   UsersThree   (somente gestão; antes chamado "Equipe")
 Estoque         Package
 Relatórios      ChartBar
 Configurações   GearSix      (somente gestão)
 ```
 
-Menu com **submenu (grupo)**: o grupo **Catálogo** (`Storefront`) reúne **Serviços** e **Produtos** (Produtos "Em breve"). Regras:
+Menu com **submenu (grupo)**: o grupo **Catálogo** (`Storefront`) reúne **Serviços**, **Produtos** ("Em breve") e **Categorias** (somente gestão). Filhos podem ter papéis próprios. Regras:
 - Abre **recolhido por padrão**; abre sozinho apenas quando a tela atual pertence a ele (menu expandido).
 - Menu expandido: acordeão com o filho indentado (~22px) e uma linha vertical `gray-200` à esquerda; seta que gira ao abrir.
 - Menu recolhido: clicar no ícone abre uma janelinha à direita (`rounded-lg`, borda, `shadow-md`) com o título do grupo e os filhos; fecha ao clicar fora ou ao navegar.
@@ -865,6 +865,12 @@ Nenhuma tela deve depender exclusivamente do estado ideal com dados preenchidos.
 - **Percentual:** `%` fixo à direita; só dígitos e uma vírgula, até 2 casas, **máximo 100** (150 vira 100; colar "30%" ou letras limpa). Guardar em centésimos de % (30% = 3000).
 - **Inteiro com unidade** (dias, sessões): unidade fixa dentro do campo, só dígitos, com máximo; vazio significa "sem valor" (ex.: "Sem validade").
 - Componentes únicos em `src/ui/CamposNumericos.tsx`.
+
+# 24.25 Gestão de categorias
+
+- Tela própria dentro do grupo do catálogo ("Categorias"), com abas por tipo (Serviços; Produtos "Em breve"). Campo "Nova categoria" no topo (Enter cria), lista com contagem de uso, lápis (renomear no lugar, Enter salva, Esc cancela) e lixeira.
+- Nome único ignorando maiúsculas; erro claro quando repetido.
+- Excluir sempre com confirmação que **diz o impacto** (quantos itens ficam "Sem categoria" e quantas regras ligadas serão removidas). Nunca bloquear a exclusão por estar em uso.
 
 # 24.3 Cadastro em abas com um único salvar
 
