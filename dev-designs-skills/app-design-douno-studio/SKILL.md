@@ -1087,3 +1087,9 @@ visuais.
 - **Formulário em modal:** tipo (Agendamento | Bloqueio) no topo, cliente, serviço, profissional, data, horário, duração e observação. Avisos (choque, folga, fora do horário) em caixa âmbar, sem impedir o salvar. Depois de salvar, um passo de sucesso oferece o botão de WhatsApp (verde oficial do canal, único uso do token `whatsapp`).
 - **Menu lateral:** só itens que existem; sem selo "Em breve".
 - **Configuração de negócio** (categorias, horário, mensagens) fica numa aba "Personalização" de Configurações, não em telas soltas no menu.
+
+## Cadastro longo em uma página (seções recolhidas)
+
+- No lugar de abas, o cadastro traz o essencial em cima (o que o caso comum exige) e, abaixo, **seções recolhíveis**: ícone em quadrado `primary-50`, título, resumo de uma linha do que está preenchido e seta. Um único botão Salvar no fim da página.
+- Seção com erro de validação abre sozinha e mostra um ponto vermelho. Seções de dado sensível (custo, comissão) simplesmente não existem para quem não pode vê-las.
+- **Campo de pesquisa para escolher entre muitos itens** (ex.: serviço no agendamento): caixa com lupa, lista filtrada sem acento embaixo (fluxo normal, não flutuante, para não ser cortada pela rolagem do modal), setas + Enter + Esc, e o escolhido vira um cartão com "Trocar".
