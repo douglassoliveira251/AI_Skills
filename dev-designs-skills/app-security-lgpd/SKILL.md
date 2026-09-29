@@ -22,6 +22,7 @@ Esta skill é um checklist. Antes de dar uma tarefa por concluída, percorra as 
 - Tabelas de histórico (auditoria, consentimentos) **não têm política de update/delete**: são somente inserção.
 - Dados de funcionários também são dados pessoais: separar em níveis (básico visível à equipe; ficha pessoal para gestão e a própria pessoa; vínculo e anotações internas só para gestão, a pessoa não vê).
 - Desligamento revoga tudo de uma vez e no banco (não depende da tela): desativar o cadastro da pessoa bloqueia a conta e cancela convites pendentes; reativar exige liberar o acesso de novo.
+- Dados financeiros internos do negócio (custo, margem, comissão, remuneração, exceções) são tratados como dado de gestão: tabelas próprias, RLS só para a gestão, telas que nem exibem a aba para outros papéis. Em inserts de tabelas filhas, conferir com `exists` que o pai e as referências (colaborador, serviço, categoria) pertencem à mesma organização.
 - Papel de co-gestão não pode escalar privilégio: só a proprietária promove/rebaixa co-gestoras, e ninguém altera o próprio papel nem o da proprietária (testar os dois sentidos).
 
 ### Verificação obrigatória

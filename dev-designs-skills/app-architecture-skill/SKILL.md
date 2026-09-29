@@ -177,6 +177,17 @@ Exemplo de matriz (Anora, estúdio de estética):
 - Dados da pessoa em **níveis de visibilidade = tabelas separadas**: básico (toda a equipe), ficha pessoal (gestão + a própria pessoa), vínculo/anotações internas (só gestão).
 - Papel de co-gestão (ex. administradora): em vez de duplicar todas as políticas, a função `tem_papel` trata o papel de co-gestão como equivalente ao de proprietária, e as exceções (não mexer na proprietária nem em outras co-gestoras, só a proprietária promove) ficam nas políticas de `membros`/`convites`. Valor novo em enum é criado numa migration própria, antes da que o usa.
 
+### Representação de valores no banco
+
+- **Dinheiro em centavos** (`integer`), nunca `float`. **Percentual em centésimos de %** (30% = 3000, com `check <= 10000`). **Duração em minutos** (`integer`, com faixa no `check`). Formatação e cálculo (comissão, margem, economia de pacote, tempo na agenda) em funções puras de `src/domain`, testáveis e usadas por todas as telas.
+- Campos "ou um, ou outro" (ex.: tipo + valor de comissão): `check ((tipo is null) = (valor is null))` e regra própria por tipo, para impedir estado inválido no banco.
+- Sugestões iniciais por organização (ex.: categorias) entram na função que cria a organização, e uma migration preenche as organizações existentes.
+
+### Formulário com várias abas e listas filhas
+
+- Um estado só no componente da página (`ServicoForm`), com escalares e listas filhas (pacotes, profissionais, materiais); um `salvar` na camada `data/` que grava escalares com lock otimista e **sincroniza cada lista** (remove o que saiu, faz upsert do que ficou/entrou). IDs novos são gerados no cliente (`crypto.randomUUID()`). Dirty = comparar o formulário com o carregado.
+- Dados sensíveis do mesmo registro (custo, comissão) ficam em tabela separada e só são lidos/gravados quando o papel permite; a tela recebe `null` e nem mostra a aba.
+
 ### Arquivos
 
 - Toda troca de arquivo passa por uma função única (`substituirArquivo`): envia o novo, grava o caminho no registro e só então apaga o antigo. Se a gravação falhar, remove o arquivo recém-enviado (sem órfãos no storage).

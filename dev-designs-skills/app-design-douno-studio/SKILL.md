@@ -3,10 +3,10 @@ name: ds_design-system
 description: Design System da plataforma de gestão para práticas estéticas (Anora) — paleta, tipografia Geist, Tailwind v4 com tokens via @theme, ícones Phosphor, layout com sidebar compacta, cards, formulários, tabelas, estados e checklist de revisão. Use sempre que for criar ou revisar qualquer tela, componente visual ou estilo desse produto. Complementa a ds_app-architecture-skill (que cobre dados/estado/persistência) e prevalece sobre a taste-skill em caso de conflito, exceto onde indicado.
 ---
 
-# Design System v0.5
+# Design System v0.6
 ## Plataforma de Gestão para Práticas Estéticas
 
-**Status:** Draft / v0.5 (v0.5.2: ícones só contorno também no ativo; logo Anora de volta ao topo do menu (identidade do estúdio fora do menu). v0.5.1: itens inativos todos em `gray-500`. v0.5: identidade do estúdio no topo do menu e assinatura Anora no rodapé, item Equipe, paginação padrão, recorte de imagem, aba "Em breve". v0.4.1: v0.4.1: fundo da página no token `fundo` #E9EEF4. v0.4: fundo `gray-100`, perfil fora do menu lateral, ajuda contextual, avisos e módulos futuros. v0.2: fonte Geist, ícones Phosphor, implementação em Tailwind v4, modo escuro no roadmap. v0.3: sidebar flutuante e itens do menu, logo, tags, cadastro sem abas, visibilidade por papel)  
+**Status:** Draft / v0.6 (v0.6: submenu Catálogo, campos numéricos, cadastro em abas com um salvar. v0.5.2: ícones só contorno também no ativo; logo Anora de volta ao topo do menu (identidade do estúdio fora do menu). v0.5.1: itens inativos todos em `gray-500`. v0.5: identidade do estúdio no topo do menu e assinatura Anora no rodapé, item Equipe, paginação padrão, recorte de imagem, aba "Em breve". v0.4.1: v0.4.1: fundo da página no token `fundo` #E9EEF4. v0.4: fundo `gray-100`, perfil fora do menu lateral, ajuda contextual, avisos e módulos futuros. v0.2: fonte Geist, ícones Phosphor, implementação em Tailwind v4, modo escuro no roadmap. v0.3: sidebar flutuante e itens do menu, logo, tags, cadastro sem abas, visibilidade por papel)  
 **Objetivo:** estabelecer uma linguagem visual consistente para todas as telas do produto.
 
 **Base:** esta é a skill derivada do Anora a partir de `ds_design-system-base` (genérica, para qualquer sistema). Aqui ficam marca, paleta, telas e exceções do Anora; em caso de conflito, esta prevalece sobre a base.
@@ -378,6 +378,12 @@ Estoque         Package
 Relatórios      ChartBar
 Configurações   GearSix      (somente gestão)
 ```
+
+Menu com **submenu (grupo)**: o grupo **Catálogo** (`Storefront`) reúne **Serviços** e **Produtos** (Produtos "Em breve"). Regras:
+- Abre **recolhido por padrão**; abre sozinho apenas quando a tela atual pertence a ele (menu expandido).
+- Menu expandido: acordeão com o filho indentado (~22px) e uma linha vertical `gray-200` à esquerda; seta que gira ao abrir.
+- Menu recolhido: clicar no ícone abre uma janelinha à direita (`rounded-lg`, borda, `shadow-md`) com o título do grupo e os filhos; fecha ao clicar fora ou ao navegar.
+- O item do grupo fica destacado (`primary-50`) só quando um filho está ativo e o grupo está fechado.
 
 Itens exibidos dependem do papel do usuário (ex. recepção não vê Financeiro, Relatórios nem Configurações). Um módulo ainda não implementado aparece desabilitado com tooltip "Em breve", não some da lista.
 
@@ -849,6 +855,24 @@ Nenhuma tela deve depender exclusivamente do estado ideal com dados preenchidos.
 - **Aviso transitório** (toast): centralizado no rodapé, some em ~4s, apenas para confirmar ações concluídas ("Cliente cadastrado") ou erros de ações sem formulário. Erro de formulário fica no próprio formulário, nunca em aviso.
 - **Módulo ainda não disponível:** aparece no menu desabilitado com o selo "Em breve" (expandido) ou tooltip "(em breve)" (recolhido). Abas ainda não implementadas mostram empty state explicando o que existirá ali, sem prometer datas.
 - **Confirmação de ação destrutiva:** diálogo modal com título, consequência explicada e botão `danger` com o verbo da ação ("Anonimizar definitivamente"), nunca "OK".
+
+---
+
+# 24.2 Campos numéricos (nunca texto livre)
+
+- **Duração:** dois seletores, **horas** (0 a 8) e **minutos** (de 5 em 5, 00 a 55), guardando minutos totais; mínimo 5 min. Para intervalos, o mesmo componente com limite menor e permitindo zero. Mostrar em linguagem natural o efeito ("na agenda ocupa 1h 40min").
+- **Dinheiro:** `R$` fixo à esquerda, alinhado à direita, aceita só dígitos e preenche pelos centavos (18000 vira 180,00). Guardar em **centavos**.
+- **Percentual:** `%` fixo à direita; só dígitos e uma vírgula, até 2 casas, **máximo 100** (150 vira 100; colar "30%" ou letras limpa). Guardar em centésimos de % (30% = 3000).
+- **Inteiro com unidade** (dias, sessões): unidade fixa dentro do campo, só dígitos, com máximo; vazio significa "sem valor" (ex.: "Sem validade").
+- Componentes únicos em `src/ui/CamposNumericos.tsx`.
+
+# 24.3 Cadastro em abas com um único salvar
+
+- Registro com várias seções (ex.: serviço) usa **abas** e um botão **Salvar** no cabeçalho que grava todas as abas juntas. Aba com campo inválido recebe um **ponto vermelho** e o salvar leva à primeira aba com erro.
+- Cadastro **novo** mostra só o essencial (sem abas); as abas completas aparecem depois de salvar.
+- Alterações não salvas: aviso discreto em faixa `warning` e confirmação ao sair ("Descartar alterações").
+- Quem só pode consultar vê as mesmas abas em modo leitura (campos desabilitados, sem botões de ação) e uma etiqueta "Somente consulta"; abas sensíveis (custo, comissão) nem aparecem.
+- Escolha única entre 2 a 3 opções curtas: controle **segmentado** (barra), não select.
 
 ---
 

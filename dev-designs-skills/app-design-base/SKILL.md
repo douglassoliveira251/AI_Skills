@@ -136,6 +136,7 @@ Hierarquia por peso e cor, não por tamanhos gritantes. Nenhum texto abaixo de 1
 - Item ativo: fundo `primary-50`, ícone e texto `primary-600`/`700`. Ícones **sempre só contorno** (`regular`), inclusive no ativo: nada de ícone preenchido. Itens não selecionados: ícone e texto na mesma cor (`gray-500`) para todos, inclusive os "Em breve".
 - Topo do menu: logo do produto. A identidade da empresa cliente (logo + nome), quando o sistema é vendido a várias empresas, vai fora do menu lateral (ex. barra superior), para não disputar com a navegação.
 - Parte inferior: somente ações secundárias (ex. Ajuda). **O perfil do usuário não fica no menu lateral.**
+- **Submenu (grupo de itens relacionados)**: abre **recolhido por padrão** e abre sozinho só quando a tela atual pertence a ele. Expandido: acordeão com filhos indentados e linha vertical clara à esquerda. Recolhido: clicar no ícone abre uma janelinha à direita com os filhos (fecha ao clicar fora ou navegar). Só agrupe quando houver 2 ou mais itens da mesma família.
 - Itens visíveis dependem da permissão do usuário. Módulo ainda não disponível aparece desabilitado com selo "Em breve" (expandido) ou tooltip "(em breve)" (recolhido), em vez de sumir.
 
 ### 5.2 Barra superior
@@ -171,6 +172,12 @@ Altura 44px (normal) ou 36px (compacto), raio `md`, ícone de 18px à esquerda o
 - Máscaras para documentos, telefone e CEP; datas com o seletor nativo; selects com seta própria.
 - Preencher automaticamente o que for possível (ex. endereço pelo CEP) e mover o foco para o próximo campo útil.
 
+### Campos numéricos (nunca texto livre)
+
+- **Duração**: seletores de horas + minutos (passo definido pelo produto, ex. 5), guardando minutos totais. **Dinheiro**: símbolo fixo, só dígitos, preenche pelos centavos, guardado em centavos. **Percentual**: `%` fixo, só dígitos e vírgula, limitado a 100. **Inteiro com unidade** (dias, sessões): unidade fixa no campo, só dígitos, com máximo; vazio = sem valor.
+- Mostrar, junto ao campo, o efeito em linguagem natural quando ajudar ("ocupa 1h 40min na agenda") e simulações de cálculo com números reais.
+- Escolha única entre 2 a 3 opções curtas: controle segmentado.
+
 ### Formulários
 
 - Divididos em **seções** com título (18px) + descrição curta; campos sem relação não dividem a mesma seção.
@@ -178,6 +185,7 @@ Altura 44px (normal) ou 36px (compacto), raio `md`, ícone de 18px à esquerda o
 - Não pedir dado que pode ser derivado de outro.
 - Ao salvar com erro: marcar todos os campos inválidos e **levar o foco ao primeiro**. Erros de formulário ficam no formulário, nunca em aviso flutuante.
 - Criação de um registro mostra só o necessário para criá-lo. Abas de dados relacionados (histórico, anexos, financeiro) só existem depois que o registro foi salvo.
+- **Registro com várias seções**: abas + um único botão Salvar no cabeçalho gravando tudo; aba com erro ganha ponto vermelho e o salvar leva a ela; cadastro novo mostra só o essencial e as abas aparecem depois de salvar; alterações não salvas avisam e pedem confirmação ao sair. Papéis só de consulta veem as abas em leitura (campos desabilitados) e abas sensíveis nem aparecem.
 - Ações do formulário: "Cancelar" (secundário) + "Salvar …" (primário), no topo em telas de criação e ao final em edições.
 
 ### Cards
