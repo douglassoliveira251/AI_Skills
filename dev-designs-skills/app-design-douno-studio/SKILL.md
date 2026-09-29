@@ -1105,3 +1105,7 @@ Campos que a pessoa não altera aparecem desabilitados (cinza), com um aviso cur
 ## Matriz de permissões
 
 Tabela com uma coluna por função e um **interruptor** (`role="switch"`, com rótulo acessível "permissão: função") por linha; permissões agrupadas por assunto com título; descrição curta embaixo de cada uma; aviso em âmbar para dado pessoal; "alterado" em âmbar sob o interruptor que mudou; "Restaurar padrão" no cabeçalho de cada coluna; um único botão Salvar e o aviso "Alterações não salvas". Pré-requisito desligado deixa o interruptor dependente desabilitado com a explicação.
+
+## Escolher muitos itens agrupados
+
+Lista agrupada por categoria abre com os **grupos recolhidos**: cada grupo tem uma caixa que marca o grupo todo (estado parcial quando só alguns estão marcados), título com contagem ("3 serviços • 2 marcados") e seta para expandir. A **pesquisa** abre sozinha os grupos com resultado e filtra os itens; marcar o grupo com pesquisa ativa marca só o que está visível.
