@@ -1101,3 +1101,7 @@ Foto de pessoa, serviço, cliente ou logo usa o mesmo componente: a imagem (redo
 ## Meu perfil (quem não gere o estúdio)
 
 Campos que a pessoa não altera aparecem desabilitados (cinza), com um aviso curto explicando a quem pedir a correção. O que ela pode alterar (foto e nome social) fica no topo, editável. Para a gestão, o mesmo cartão vira totalmente editável, com um atalho para a ficha completa.
+
+## Matriz de permissões
+
+Tabela com uma coluna por função e um **interruptor** (`role="switch"`, com rótulo acessível "permissão: função") por linha; permissões agrupadas por assunto com título; descrição curta embaixo de cada uma; aviso em âmbar para dado pessoal; "alterado" em âmbar sob o interruptor que mudou; "Restaurar padrão" no cabeçalho de cada coluna; um único botão Salvar e o aviso "Alterações não salvas". Pré-requisito desligado deixa o interruptor dependente desabilitado com a explicação.

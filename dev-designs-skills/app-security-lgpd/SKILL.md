@@ -118,3 +118,10 @@ Esta skill é um checklist. Antes de dar uma tarefa por concluída, percorra as 
 - Dados pessoais (CPF, RG, endereço, telefone) ficam com leitura para a própria pessoa e escrita só da gestão, com aviso na tela ("fale com a administração").
 - Arquivos do próprio cadastro (foto): policy de storage que só aceita a pasta cuja pessoa é a logada e cuja organização confere com a do cadastro, para ninguém gravar na pasta de outra ou de outro estúdio.
 - Sempre testar por papel em SQL (transação revertida): a própria pessoa, outra pessoa, recepção e gestão.
+
+## Permissões editáveis (RLS com interruptores)
+
+- Troque `tem_papel(org, array[...])` das políticas por `tem_permissao(org, 'chave')`: a função lê o ajuste da gestão e, sem ajuste, o padrão de fábrica. Gestão (proprietária e administradoras) retorna sempre verdadeiro, então ninguém se tranca fora.
+- Só a gestão grava a tabela de permissões; todos os membros leem (a tela precisa saber o que esconder); toda alteração vai para a auditoria.
+- Liberar dado pessoal (contato, CPF) pede confirmação explícita com aviso de LGPD. Contato só aparece para clientes que a pessoa pode ver (`ver_contato` E acesso à cliente).
+- Ao trocar políticas em massa, testar em SQL (transação revertida): padrão de fábrica de cada papel (deve reproduzir o comportamento anterior), depois com ajustes ligados e desligados, e que a recepção não consegue gravar permissões.
