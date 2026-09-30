@@ -130,3 +130,9 @@ Esta skill é um checklist. Antes de dar uma tarefa por concluída, percorra as 
 
 - Produtos (nome, preço, estoque) são legíveis por toda a equipe, porque o caixa precisa; custo de compra, margem e comissão ficam em tabela separada, só gestão. Movimentações de estoque só a gestão lê e grava (o caixa gravará saídas por função própria).
 - Saldo de estoque não é campo editável: só o trigger de movimentação o altera. Toda movimentação e alteração de produto entra na auditoria (a função de auditoria precisa reconhecer a chave da tabela nova).
+
+## Financeiro
+
+- Tabelas financeiras (cobranças, pagamentos, carteira, maquininhas) têm só política de leitura, liberada pela permissão de cobrar; nada de insert/update/delete direto. A gravação é por RPC que valida permissão e organização e nunca confia em preço, taxa ou valor líquido vindos da tela.
+- Devolver ou reter crédito da cliente é decisão só da gestão (checagem dentro da função, não só na interface).
+- Teste por papel em SQL (transação revertida): atendente sem acesso, recepção cobra mas não resolve crédito, excesso de valor recusado, parcela sem taxa recusada.
