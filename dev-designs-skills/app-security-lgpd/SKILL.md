@@ -125,3 +125,8 @@ Esta skill é um checklist. Antes de dar uma tarefa por concluída, percorra as 
 - Só a gestão grava a tabela de permissões; todos os membros leem (a tela precisa saber o que esconder); toda alteração vai para a auditoria.
 - Liberar dado pessoal (contato, CPF) pede confirmação explícita com aviso de LGPD. Contato só aparece para clientes que a pessoa pode ver (`ver_contato` E acesso à cliente).
 - Ao trocar políticas em massa, testar em SQL (transação revertida): padrão de fábrica de cada papel (deve reproduzir o comportamento anterior), depois com ajustes ligados e desligados, e que a recepção não consegue gravar permissões.
+
+## Produtos e estoque
+
+- Produtos (nome, preço, estoque) são legíveis por toda a equipe, porque o caixa precisa; custo de compra, margem e comissão ficam em tabela separada, só gestão. Movimentações de estoque só a gestão lê e grava (o caixa gravará saídas por função própria).
+- Saldo de estoque não é campo editável: só o trigger de movimentação o altera. Toda movimentação e alteração de produto entra na auditoria (a função de auditoria precisa reconhecer a chave da tabela nova).

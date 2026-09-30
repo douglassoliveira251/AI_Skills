@@ -1109,3 +1109,7 @@ Tabela com uma coluna por função e um **interruptor** (`role="switch"`, com r�
 ## Escolher muitos itens agrupados
 
 Lista agrupada por categoria abre com os **grupos recolhidos**: cada grupo tem uma caixa que marca o grupo todo (estado parcial quando só alguns estão marcados), título com contagem ("3 serviços • 2 marcados") e seta para expandir. A **pesquisa** abre sozinha os grupos com resultado e filtra os itens; marcar o grupo com pesquisa ativa marca só o que está visível.
+
+## Estoque nas listas
+
+Situação do estoque com **ponto de cor + texto** (nunca só cor): verde normal, âmbar "baixo" (chegou ao mínimo), vermelho "Esgotado". Um aviso âmbar no topo da lista resume quantos produtos precisam de reposição e leva ao filtro. Custo e margem são colunas só da gestão, com a nota "aparecem apenas para a proprietária e as administradoras".
